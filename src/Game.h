@@ -11,6 +11,7 @@ public:
     void Destroy();
     
 private:
+    void Setup();
     void ProcessInput();
     void Update();
     void Render();
@@ -20,6 +21,7 @@ private:
     struct SDL_Renderer* _renderer;
 
     bool _isRunning;
+    int _windowWidth, _windowHeight;
 };
 
 #endif

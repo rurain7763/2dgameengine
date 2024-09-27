@@ -1,5 +1,6 @@
 #include "Game.h"
 #include "SDL2/SDL.h"
+#include "SDL2/SDL_image.h"
 #include <iostream>
 
 Game::Game() {
@@ -16,12 +17,17 @@ void Game::Init() {
         return;
     }
 
+    SDL_DisplayMode displayMod;
+    SDL_GetCurrentDisplayMode(0, &displayMod);
+    _windowWidth = displayMod.w;
+    _windowHeight = displayMod.h;
+
     _window = SDL_CreateWindow(
         nullptr,
         SDL_WINDOWPOS_CENTERED,
         SDL_WINDOWPOS_CENTERED,
-        800,
-        600,
+        _windowWidth,
+        _windowHeight,
         SDL_WINDOW_BORDERLESS
     );
     if(!_window) {
@@ -35,6 +41,8 @@ void Game::Init() {
         return;
     }
     
+    SDL_SetWindowFullscreen(_window, SDL_WINDOW_FULLSCREEN);
+
     _isRunning = true;
 }
 
@@ -50,6 +58,10 @@ void Game::Destroy() {
     SDL_DestroyRenderer(_renderer);
     SDL_DestroyWindow(_window);
     SDL_Quit();
+}
+
+void Game::Setup() {
+    
 }
 
 void Game::ProcessInput() {
@@ -73,5 +85,16 @@ void Game::Update() {
 }
 
 void Game::Render() {
+    SDL_SetRenderDrawColor(_renderer, 0, 0, 0, 0);
+    SDL_RenderClear(_renderer);
 
+    SDL_Surface* surface = IMG_Load("./assets/images/tank-tiger-right.png");
+    SDL_Texture* texture = SDL_CreateTextureFromSurface(_renderer, surface);
+    SDL_FreeSurface(surface);
+
+    SDL_Rect dstRt = { 10, 10, 64, 64 };
+    SDL_RenderCopy(_renderer, texture, nullptr, &dstRt);
+    SDL_DestroyTexture(texture);
+
+    SDL_RenderPresent(_renderer);
 }
