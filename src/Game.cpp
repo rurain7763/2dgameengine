@@ -1,4 +1,6 @@
 #include "Game.h"
+#include "Logger.h"
+
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <glm/glm.hpp>
@@ -14,7 +16,7 @@ Game::~Game() {
 
 void Game::Init() {
     if(SDL_Init(SDL_INIT_EVERYTHING) != 0) {
-        std::cerr << "Error init SDL\n";
+        Logger::Err("Error init SDL");
         return;
     }
 
@@ -32,19 +34,21 @@ void Game::Init() {
         SDL_WINDOW_BORDERLESS
     );
     if(!_window) {
-        std::cerr << "Error creating window\n";
+        Logger::Err("Error creating window");
         return;
     }
 
     _renderer = SDL_CreateRenderer(_window, -1, 0);
     if(!_renderer) {
-        std::cerr << "Error creating renderer\n";
+        Logger::Err("Error creating renderer");
         return;
     }
     
     SDL_SetWindowFullscreen(_window, SDL_WINDOW_FULLSCREEN);
 
     _isRunning = true;
+
+    LOG("Hello world!");
 }
 
 void Game::Run() {
