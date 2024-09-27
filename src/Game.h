@@ -1,6 +1,9 @@
 #ifndef GAME_H
 #define GAME_H
 
+const int FPS = 60;
+const int MILLISECS_PER_FRAME = 1000 / FPS;
+
 class Game {
 public:
     Game();
@@ -22,6 +25,8 @@ private:
 
     bool _isRunning;
     int _windowWidth, _windowHeight;
+
+    int _prevFrameMilliSecs;
 };
 
 #endif
