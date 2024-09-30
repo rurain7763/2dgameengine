@@ -1,8 +1,8 @@
 #include "Game.h"
 #include "../Logger/Logger.h"
-#include "../Components/TransformComponent.h"
-#include "../Components/RigidBodyComponent.h"
+
 #include "../Systems/MovementSystem.h"
+#include "../Systems/RenderSystem.h"
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
@@ -73,10 +73,17 @@ void Game::Destroy() {
 
 void Game::Setup() {
     _registry->AddSystem<MovementSystem>();
+    _registry->AddSystem<RenderSystem>();
 
     Entity tank = _registry->CreateEntity();
     tank.AddComponent<TransformComponent>(glm::vec2(10, 30), glm::vec2(1, 1), 0);
     tank.AddComponent<RigidBodyComponent>(glm::vec2(50, 0));
+    tank.AddComponent<SpriteComponent>(24, 24);
+
+    Entity truck = _registry->CreateEntity();
+    truck.AddComponent<TransformComponent>(glm::vec2(50, 100), glm::vec2(1, 1), 0);
+    truck.AddComponent<RigidBodyComponent>(glm::vec2(0, 50));
+    truck.AddComponent<SpriteComponent>(24, 48);
 }
 
 void Game::ProcessInput() {
@@ -114,7 +121,7 @@ void Game::Render() {
     SDL_SetRenderDrawColor(_renderer, 0, 0, 0, 0);
     SDL_RenderClear(_renderer);
 
-    // render system
+    _registry->GetSystem<RenderSystem>().Update(_renderer);
 
     SDL_RenderPresent(_renderer);
 }

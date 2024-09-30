@@ -126,6 +126,7 @@ public:
             pool->Resize(entityID + 1);
         }
 
+        // 주의 : 이 부분에서 컴파일 에러 발생 시 기본 생성자가 없는 것이므로 확인할것
         T newComponent(std::forward<TArgs>(args)...);
 
         pool->Set(entityID, newComponent);

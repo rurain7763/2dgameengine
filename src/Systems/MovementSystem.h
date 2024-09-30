@@ -4,7 +4,6 @@
 #include "../ECS/ECS.h"
 #include "../Components/TransformComponent.h"
 #include "../Components/RigidBodyComponent.h"
-#include "../Logger/Logger.h"
 
 class MovementSystem : public System {
 public:
@@ -19,7 +18,6 @@ public:
             auto& rigidbody = entity.GetComponent<RigidBodyComponent>();
 
             transform.position += rigidbody.velocity * deltaTime;
-            LOG("Entity id %d is now at x : %f y : %f", entity.GetID(), transform.position.x, transform.position.y);
         }
     }
 };
