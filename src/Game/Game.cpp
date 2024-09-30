@@ -2,6 +2,7 @@
 #include "../Logger/Logger.h"
 #include "../Components/TransformComponent.h"
 #include "../Components/RigidBodyComponent.h"
+#include "../Systems/MovementSystem.h"
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
@@ -71,10 +72,11 @@ void Game::Destroy() {
 }
 
 void Game::Setup() {
+    _registry->AddSystem<MovementSystem>();
+
     Entity tank = _registry->CreateEntity();
     tank.AddComponent<TransformComponent>(glm::vec2(10, 30), glm::vec2(1, 1), 0);
     tank.AddComponent<RigidBodyComponent>(glm::vec2(50, 0));
-    tank.RemoveComponent<RigidBodyComponent>();
 }
 
 void Game::ProcessInput() {
@@ -99,10 +101,13 @@ void Game::Update() {
     if(timeToWait > 0) {
         SDL_Delay(timeToWait);
     }
-    double deltaTime = (SDL_GetTicks() - _prevFrameMilliSecs) / 1000.0;
+    float deltaTime = (SDL_GetTicks() - _prevFrameMilliSecs) / 1000.0;
     _prevFrameMilliSecs = SDL_GetTicks();
 
-    // system update
+    _registry->GetSystem<MovementSystem>().Update(deltaTime);
+
+    // 레지스트리 업데이트(실제로 entity 생성 및 삭제가 일어남)
+    _registry->Update();
 }
 
 void Game::Render() {

@@ -49,7 +49,7 @@ void Registry::AddEntityToSystem(const Entity& entity) {
     const Signature& sig = _entityComponentSigs[entityID];
     for(auto& pair : _systems) {
         const Signature& systemSig = pair.second->GetSignature();
-        bool isInterested = (sig & systemSig) == sig;
+        bool isInterested = (sig & systemSig) == systemSig;
         if(isInterested) {
             pair.second->AddEnity(entity);
         }

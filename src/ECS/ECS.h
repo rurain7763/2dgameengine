@@ -153,7 +153,7 @@ public:
     T& GetComponent(const Entity& entity) const {
         const int componentID = Component<T>::GetID();
         const int entityID = entity.GetID();
-        ComponentPool<T>* pool = std::static_pointer_cast<ComponentPool<T>>(_componentPools[componentID]);
+        auto pool = std::static_pointer_cast<ComponentPool<T>>(_componentPools[componentID]);
         return pool->Get(entityID);
     }
 
