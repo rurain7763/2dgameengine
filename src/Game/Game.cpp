@@ -5,7 +5,6 @@
 #include "../Systems/RenderSystem.h"
 
 #include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
 #include <glm/glm.hpp>
 #include <iostream>
 
@@ -13,6 +12,7 @@ Game::Game()
     : _prevFrameMilliSecs(0)
 {
     _registry = std::make_unique<Registry>();
+    _assetManager = std::make_unique<AssetManager>();
 }
 
 Game::~Game() {
@@ -75,15 +75,18 @@ void Game::Setup() {
     _registry->AddSystem<MovementSystem>();
     _registry->AddSystem<RenderSystem>();
 
+    _assetManager->AddTexture(_renderer, "tank_image", "./assets/images/tank-tiger-right.png");
+    _assetManager->AddTexture(_renderer, "truck_image", "./assets/images/truck-ford-right.png");
+
     Entity tank = _registry->CreateEntity();
     tank.AddComponent<TransformComponent>(glm::vec2(10, 30), glm::vec2(1, 1), 0);
     tank.AddComponent<RigidBodyComponent>(glm::vec2(50, 0));
-    tank.AddComponent<SpriteComponent>(24, 24);
+    tank.AddComponent<SpriteComponent>("tank_image", 24, 24);
 
     Entity truck = _registry->CreateEntity();
     truck.AddComponent<TransformComponent>(glm::vec2(50, 100), glm::vec2(1, 1), 0);
     truck.AddComponent<RigidBodyComponent>(glm::vec2(0, 50));
-    truck.AddComponent<SpriteComponent>(24, 48);
+    truck.AddComponent<SpriteComponent>("truck_image", 24, 48);
 }
 
 void Game::ProcessInput() {
@@ -121,7 +124,7 @@ void Game::Render() {
     SDL_SetRenderDrawColor(_renderer, 0, 0, 0, 0);
     SDL_RenderClear(_renderer);
 
-    _registry->GetSystem<RenderSystem>().Update(_renderer);
+    _registry->GetSystem<RenderSystem>().Update(_renderer, _assetManager);
 
     SDL_RenderPresent(_renderer);
 }

@@ -2,6 +2,7 @@
 #define GAME_H
 
 #include "../ECS/ECS.h"
+#include "../AssetManager/AssetManager.h"
 
 const int FPS = 60;
 const int MILLISECS_PER_FRAME = 1000 / FPS;
@@ -31,6 +32,7 @@ private:
     int _prevFrameMilliSecs;
 
     std::unique_ptr<Registry> _registry;
+    std::unique_ptr<AssetManager> _assetManager;
 };
 
 #endif

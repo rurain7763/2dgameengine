@@ -13,19 +13,34 @@ public:
         RequireComponent<SpriteComponent>();
     }
 
-    void Update(SDL_Renderer* renderer) {
+    void Update(SDL_Renderer* renderer, std::unique_ptr<AssetManager>& assetManager) {
         for(auto& entity : GetEntities()) {
             auto& transform = entity.GetComponent<TransformComponent>();
             auto& sprite = entity.GetComponent<SpriteComponent>();
 
-            SDL_Rect objRt = {
-                static_cast<int>(transform.position.x),
-                static_cast<int>(transform.position.y),
+            SDL_Rect srcRt = {
+                sprite.srcRectX,
+                sprite.srcRectY,
                 sprite.width,
                 sprite.height
             };
-            SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-            SDL_RenderFillRect(renderer, &objRt);
+
+            SDL_Rect dstRt = {
+                static_cast<int>(transform.position.x),
+                static_cast<int>(transform.position.y),
+                static_cast<int>(sprite.width * transform.scale.x),
+                static_cast<int>(sprite.height * transform.scale.y)
+            };
+
+            SDL_RenderCopyEx(
+                renderer, 
+                assetManager->GetTexture(sprite.assetID),
+                &srcRt,
+                &dstRt,
+                transform.rotation,
+                NULL,
+                SDL_FLIP_NONE
+            );
         }
     }
 };

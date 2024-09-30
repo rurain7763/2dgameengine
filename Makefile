@@ -5,7 +5,8 @@ INCLUDE_PATH = -I/opt/homebrew/include
 SRC_FILES = ./src/*.cpp \
 			./src/Logger/*.cpp \
 			./src/Game/*.cpp \
-			./src/ECS/*.cpp
+			./src/ECS/*.cpp \
+			./src/AssetManager/*.cpp
 LIB_PATH = -L/opt/homebrew/lib
 LIBS = -lSDL2 -lSDL2_image -lglm
 PROJECT = engine
