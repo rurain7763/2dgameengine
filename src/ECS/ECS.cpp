@@ -38,7 +38,7 @@ Entity Registry::CreateEntity() {
     if(entityID >= _entityComponentSigs.size()) {
         _entityComponentSigs.resize(entityID + 1);
     }
-    Entity ret(entityID);
+    Entity ret(this, entityID);
     _entitiesToAdded.insert(ret);
     LOG("Entity create with id = %d", entityID);
     return ret;

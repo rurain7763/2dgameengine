@@ -1,6 +1,7 @@
 #include "Game.h"
 #include "../Logger/Logger.h"
 #include "../Components/TransformComponent.h"
+#include "../Components/RigidBodyComponent.h"
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
@@ -71,8 +72,9 @@ void Game::Destroy() {
 
 void Game::Setup() {
     Entity tank = _registry->CreateEntity();
-    Entity truck = _registry->CreateEntity();
-    //tank.AddComponent<TransformComponent>();
+    tank.AddComponent<TransformComponent>(glm::vec2(10, 30), glm::vec2(1, 1), 0);
+    tank.AddComponent<RigidBodyComponent>(glm::vec2(50, 0));
+    tank.RemoveComponent<RigidBodyComponent>();
 }
 
 void Game::ProcessInput() {

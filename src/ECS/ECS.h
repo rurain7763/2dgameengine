@@ -1,6 +1,8 @@
 #ifndef ECS_H
 #define ECS_H
 
+#include "../Logger/Logger.h"
+
 #include <bitset>
 #include <vector>
 #include <set>
@@ -13,9 +15,14 @@ typedef std::bitset<MAX_COMPONENTS> Signature;
 
 class Entity {
 public:
-    Entity(int id) : _id(id) {}
+    Entity(class Registry* registry, int id) : _registry(registry), _id(id) {}
     Entity(const Entity& other) = default;
     int GetID() const;
+
+    template<typename T, typename ...TArgs> void AddComponent(TArgs&& ...args) const;
+    template<typename T> void RemoveComponent() const;
+    template<typename T> bool HasComponent() const;
+    template<typename T> T& GetComponent() const;
 
     Entity& operator=(const Entity& other) = default;
     bool operator==(const Entity& other) const { return _id == other.GetID(); }
@@ -24,6 +31,7 @@ public:
     bool operator<(const Entity& other) const { return _id < other.GetID(); }
 
 private:
+    class Registry* _registry;
     int _id;
 };
 
@@ -98,6 +106,7 @@ private:
 class Registry {
 public:
     Registry() = default;
+    ~Registry() = default;
 
     Entity CreateEntity();
 
@@ -121,6 +130,8 @@ public:
 
         pool->Set(entityID, newComponent);
         _entityComponentSigs[entityID].set(componentID, true);
+
+        LOG("Component id = %d was added to entity id %d", componentID, entityID);
     }
 
     template <typename T>
@@ -128,6 +139,7 @@ public:
         const int componentID = Component<T>::GetID();
         const int entityID = entity.GetID();
         _entityComponentSigs[entityID].set(componentID, false);
+        LOG("Component id = %d was removed from entity id %d", componentID, entityID);
     }
 
     template <typename T>
@@ -141,7 +153,7 @@ public:
     T& GetComponent(const Entity& entity) const {
         const int componentID = Component<T>::GetID();
         const int entityID = entity.GetID();
-        ComponentPool<T>* pool = static_cast<ComponentPool<T>*>(_componentPools[componentID]);
+        ComponentPool<T>* pool = std::static_pointer_cast<ComponentPool<T>>(_componentPools[componentID]);
         return pool->Get(entityID);
     }
 
@@ -182,5 +194,21 @@ private:
     std::vector<Signature> _entityComponentSigs;
     std::unordered_map<std::type_index, std::shared_ptr<System>> _systems;
 };
+
+template<typename T, typename ...TArgs> void Entity::AddComponent(TArgs&& ...args) const {
+    _registry->AddComponent<T>(*this, std::forward<TArgs>(args)...);
+}
+
+template<typename T> void Entity::RemoveComponent() const {
+    _registry->RemoveComponent<T>(*this);
+}
+
+template<typename T> bool Entity::HasComponent() const {
+    return _registry->HasComponent<T>(*this);
+}
+
+template<typename T> T& Entity::GetComponent() const {
+    return _registry->GetComponent<T>(*this);
+}
 
 #endif
