@@ -1,7 +1,6 @@
 #include "Game.h"
 #include "../Logger/Logger.h"
 #include "../Components/TransformComponent.h"
-#include "../ECS/ECS.h"
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
@@ -11,7 +10,7 @@
 Game::Game() 
     : _prevFrameMilliSecs(0)
 {
-    _registry = new Registry();
+    _registry = std::make_unique<Registry>();
 }
 
 Game::~Game() {

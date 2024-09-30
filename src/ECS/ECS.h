@@ -108,10 +108,10 @@ public:
 
         if(componentID >= _componentPools.size()) {
             _componentPools.resize(componentID + 1);
-            _componentPools[componentID] = new ComponentPool<T>();
+            _componentPools[componentID] = std::make_shared<ComponentPool<T>>();
         }
 
-        ComponentPool<T>* pool = static_cast<ComponentPool<T>*>(_componentPools[componentID]);
+        auto pool = std::static_pointer_cast<ComponentPool<T>>(_componentPools[componentID]);
 
         if(entityID >= pool->Size()) {
             pool->Resize(entityID + 1);
@@ -147,7 +147,7 @@ public:
 
     template<typename T, typename ...TArgs>
     void AddSystem(TArgs&& ...args) {
-        T* newSystem = new T(std::forward<TArgs>(args)...);
+        auto newSystem = std::make_shared<T>(std::forward<TArgs>(args)...);
         _systems.insert({std::type_index(typeid(T)), newSystem});
     }
 
@@ -166,7 +166,7 @@ public:
     template<typename T>
     T& GetSystem() const {
         auto system = _systems.find(std::type_index(typeid(T)));
-        return *static_cast<T*>(system->second);
+        return *(std::static_pointer_cast<T>(system->second));
     }
 
     void AddEntityToSystem(const Entity& entity);
@@ -178,9 +178,9 @@ private:
     std::set<Entity> _entitiesToAdded;
     std::set<Entity> _entitiesToBeKilled;
 
-    std::vector<IComponentPool*> _componentPools;
+    std::vector<std::shared_ptr<IComponentPool>> _componentPools;
     std::vector<Signature> _entityComponentSigs;
-    std::unordered_map<std::type_index, System*> _systems;
+    std::unordered_map<std::type_index, std::shared_ptr<System>> _systems;
 };
 
 #endif
