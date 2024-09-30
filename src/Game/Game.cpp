@@ -1,5 +1,6 @@
 #include "Game.h"
 #include "../Logger/Logger.h"
+#include "../Components/TransformComponent.h"
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
@@ -67,7 +68,8 @@ void Game::Destroy() {
 }
 
 void Game::Setup() {
-    
+    //Entity tank = _registry.CreateEntity();
+    //tank.AddComponent<TransformComponent>();
 }
 
 void Game::ProcessInput() {
@@ -95,26 +97,14 @@ void Game::Update() {
     double deltaTime = (SDL_GetTicks() - _prevFrameMilliSecs) / 1000.0;
     _prevFrameMilliSecs = SDL_GetTicks();
 
-    position.x += 100.f * deltaTime;
+    // system update
 }
 
 void Game::Render() {
     SDL_SetRenderDrawColor(_renderer, 0, 0, 0, 0);
     SDL_RenderClear(_renderer);
 
-    SDL_Surface* surface = IMG_Load("./assets/images/tank-tiger-right.png");
-    SDL_Texture* texture = SDL_CreateTextureFromSurface(_renderer, surface);
-    SDL_FreeSurface(surface);
-
-    SDL_Rect dstRt = { 
-        static_cast<int>(position.x), 
-        static_cast<int>(position.y), 
-        32, 
-        32 
-    };
-    
-    SDL_RenderCopy(_renderer, texture, nullptr, &dstRt);
-    SDL_DestroyTexture(texture);
+    // render system
 
     SDL_RenderPresent(_renderer);
 }
