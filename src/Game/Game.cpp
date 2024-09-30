@@ -1,6 +1,7 @@
 #include "Game.h"
 #include "../Logger/Logger.h"
 #include "../Components/TransformComponent.h"
+#include "../ECS/ECS.h"
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
@@ -9,7 +10,9 @@
 
 Game::Game() 
     : _prevFrameMilliSecs(0)
-{}
+{
+    _registry = new Registry();
+}
 
 Game::~Game() {
 
@@ -68,7 +71,8 @@ void Game::Destroy() {
 }
 
 void Game::Setup() {
-    //Entity tank = _registry.CreateEntity();
+    Entity tank = _registry->CreateEntity();
+    Entity truck = _registry->CreateEntity();
     //tank.AddComponent<TransformComponent>();
 }
 

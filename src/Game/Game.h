@@ -27,6 +27,8 @@ private:
     int _windowWidth, _windowHeight;
 
     int _prevFrameMilliSecs;
+
+    class Registry* _registry;
 };
 
 #endif
