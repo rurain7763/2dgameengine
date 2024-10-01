@@ -7,6 +7,7 @@
 #include <SDL2/SDL.h>
 #include <glm/glm.hpp>
 #include <iostream>
+#include <fstream>
 
 Game::Game() 
     : _prevFrameMilliSecs(0)
@@ -77,16 +78,47 @@ void Game::Setup() {
 
     _assetManager->AddTexture(_renderer, "tank_image", "./assets/images/tank-tiger-right.png");
     _assetManager->AddTexture(_renderer, "truck_image", "./assets/images/truck-ford-right.png");
+    _assetManager->AddTexture(_renderer, "jungle_map", "./assets/tilemaps/jungle.png");
 
     Entity tank = _registry->CreateEntity();
     tank.AddComponent<TransformComponent>(glm::vec2(10, 30), glm::vec2(1, 1), 0);
     tank.AddComponent<RigidBodyComponent>(glm::vec2(50, 0));
-    tank.AddComponent<SpriteComponent>("tank_image", 24, 24);
+    tank.AddComponent<SpriteComponent>("tank_image", 32, 32);
 
     Entity truck = _registry->CreateEntity();
     truck.AddComponent<TransformComponent>(glm::vec2(50, 100), glm::vec2(1, 1), 0);
     truck.AddComponent<RigidBodyComponent>(glm::vec2(0, 50));
-    truck.AddComponent<SpriteComponent>("truck_image", 24, 48);
+    truck.AddComponent<SpriteComponent>("truck_image", 32, 32);
+
+    std::fstream file("./assets/tilemaps/jungle.map");
+    const float tileSize = 32.f;
+    const int numMapStride = 10;
+    int x = 0, y = 0;
+    std::string line;
+    while(std::getline(file, line)) {
+        int pos;
+        int idx;
+        while((pos = line.find(',')) != std::string::npos) {
+            idx = stoi(line.substr(0, pos));
+
+            Entity tile = _registry->CreateEntity();
+            tile.AddComponent<TransformComponent>(glm::vec2(x, y), glm::vec2(1, 1), 0);
+            tile.AddComponent<SpriteComponent>("jungle_map", tileSize, tileSize, (idx % numMapStride) * tileSize, (idx / numMapStride) * tileSize);
+
+            line.erase(0, pos + 1);
+            x += tileSize;
+        }
+
+        idx = stoi(line);
+
+        Entity tile = _registry->CreateEntity();
+        tile.AddComponent<TransformComponent>(glm::vec2(x, y), glm::vec2(1, 1), 0);
+        tile.AddComponent<SpriteComponent>("jungle_map", tileSize, tileSize, (idx % numMapStride) * tileSize, (idx / numMapStride) * tileSize);
+
+        y += tileSize;
+        x = 0;
+    }
+    file.close();
 }
 
 void Game::ProcessInput() {
