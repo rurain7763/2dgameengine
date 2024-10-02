@@ -5,6 +5,7 @@
 #include "../Systems/RenderSystem.h"
 #include "../Systems/AnimationSystem.h"
 #include "../Systems/CollisionSystem.h"
+#include "../Systems/DebugRenderSystem.h"
 
 #include <SDL2/SDL.h>
 #include <glm/glm.hpp>
@@ -77,6 +78,7 @@ void Game::Setup() {
     _registry->AddSystem<AnimationSystem>();
     _registry->AddSystem<CollisionSystem>();
     _registry->AddSystem<RenderSystem>();
+    _registry->AddSystem<DebugRenderSystem>();
 
     _assetManager->AddTexture(_renderer, "tank_image", "./assets/images/tank-tiger-right.png");
     _assetManager->AddTexture(_renderer, "truck_image", "./assets/images/truck-ford-right.png");
@@ -89,12 +91,14 @@ void Game::Setup() {
     tank.AddComponent<RigidBodyComponent>(glm::vec2(50, 0));
     tank.AddComponent<SpriteComponent>("tank_image", 32, 32, 2);
     tank.AddComponent<BoxColliderComponent>(32, 32);
+    tank.AddComponent<DebugRenderComponent>(true);
 
     Entity truck = _registry->CreateEntity();
     truck.AddComponent<TransformComponent>(glm::vec2(200, 30), glm::vec2(1, 1), 0);
     truck.AddComponent<RigidBodyComponent>(glm::vec2(-50, 0));
     truck.AddComponent<SpriteComponent>("truck_image", 32, 32, 1);
     truck.AddComponent<BoxColliderComponent>(32, 32);
+    truck.AddComponent<DebugRenderComponent>(true);
 
     Entity chopper = _registry->CreateEntity();
     chopper.AddComponent<TransformComponent>(glm::vec2(100, 200), glm::vec2(1, 1), 0);
@@ -176,6 +180,7 @@ void Game::Render() {
     SDL_RenderClear(_renderer);
 
     _registry->GetSystem<RenderSystem>().Update(_renderer, _assetManager);
+    _registry->GetSystem<DebugRenderSystem>().Update(_renderer);
 
     SDL_RenderPresent(_renderer);
 }

@@ -4,7 +4,6 @@
 #include "../ECS/ECS.h"
 #include "../Components/TransformComponent.h"
 #include "../Components/BoxColliderComponent.h"
-#include "../Logger/Logger.h"
 
 class CollisionSystem : public System {
 public:
@@ -15,6 +14,12 @@ public:
 
     void Update() {
         auto& entities = GetEntities();
+
+        for(auto& entity : entities) {
+            auto& boxCollider = entity.GetComponent<BoxColliderComponent>();
+            boxCollider.collidedCount = 0;
+        }
+
         for(int i = 0; i < entities.size(); i++) {
             auto& transformA = entities[i].GetComponent<TransformComponent>();
             auto& boxColliderA = entities[i].GetComponent<BoxColliderComponent>();
@@ -36,7 +41,9 @@ public:
                 float bB = tB + boxColliderB.height;
 
                 if(AABB(lA, rA, tA, bA, lB, rB, tB, bB)) {
-                    LOG("id %d entity and id %d entity both are collided", entities[i].GetID(), entities[j].GetID());
+                    // TODO:
+                    boxColliderA.collidedCount++;
+                    boxColliderB.collidedCount++;
                 }
             }
         }
