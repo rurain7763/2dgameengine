@@ -7,6 +7,7 @@
 #include <vector>
 #include <set>
 #include <unordered_map>
+#include <deque>
 #include <typeindex>
 
 const unsigned int MAX_COMPONENTS = 32;
@@ -23,6 +24,8 @@ public:
     template<typename T> void RemoveComponent() const;
     template<typename T> bool HasComponent() const;
     template<typename T> T& GetComponent() const;
+
+    void Kill() const;
 
     Entity& operator=(const Entity& other) = default;
     bool operator==(const Entity& other) const { return _id == other.GetID(); }
@@ -109,6 +112,7 @@ public:
     ~Registry() = default;
 
     Entity CreateEntity();
+    void KillEntity(const Entity& entity);
 
     template <typename T, typename ...TArgs> 
     void AddComponent(const Entity& entity, TArgs&& ...args) {
@@ -188,11 +192,13 @@ public:
     }
 
     void AddEntityToSystem(const Entity& entity);
+    void RemoveEntityFromSystem(const Entity& entity);
 
     void Update();
 
 private:
     int _numEntities = 0;
+    std::deque<int> _freeEntityIDs;
     std::set<Entity> _entitiesToAdded;
     std::set<Entity> _entitiesToBeKilled;
 

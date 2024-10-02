@@ -44,6 +44,10 @@ public:
                     // TODO:
                     boxColliderA.collidedCount++;
                     boxColliderB.collidedCount++;
+
+                    // 테스트 코드임.
+                    entities[i].Kill();
+                    entities[j].Kill();
                 }
             }
         }

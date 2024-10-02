@@ -6,6 +6,10 @@ int Entity::GetID() const {
     return _id;
 }
 
+void Entity::Kill() const {
+    _registry->KillEntity(*this);
+}
+
 // IComponent
 int IComponent::g_idCounter = 0;
 
@@ -34,14 +38,27 @@ const Signature& System::GetSignature() const {
 
 // Registry
 Entity Registry::CreateEntity() {
-    const int entityID = _numEntities++;
-    if(entityID >= _entityComponentSigs.size()) {
-        _entityComponentSigs.resize(entityID + 1);
+    int entityID = -1;
+
+    if (_freeEntityIDs.empty()) {
+        entityID = _numEntities++;
+        if(entityID >= _entityComponentSigs.size()) {
+            _entityComponentSigs.resize(entityID + 1);
+        }
+    } else {
+        entityID = _freeEntityIDs.front();
+        _freeEntityIDs.pop_front();
     }
+
     Entity ret(this, entityID);
     _entitiesToAdded.insert(ret);
     LOG("Entity create with id = %d", entityID);
+
     return ret;
+}
+
+void Registry::KillEntity(const Entity& entity) {
+    _entitiesToBeKilled.insert(entity);
 }
 
 void Registry::AddEntityToSystem(const Entity& entity) {
@@ -56,9 +73,30 @@ void Registry::AddEntityToSystem(const Entity& entity) {
     }
 }
 
+void Registry::RemoveEntityFromSystem(const Entity& entity) {
+    const int entityID = entity.GetID();
+    const Signature& sig = _entityComponentSigs[entityID];
+    for(auto& pair : _systems) {
+        const Signature& systemSig = pair.second->GetSignature();
+        bool isInterested = (sig & systemSig) == systemSig;
+        if(isInterested) {
+            pair.second->RemoveEntity(entity);
+        }
+    }
+}
+
 void Registry::Update() {
     for(auto& entity : _entitiesToAdded) {
         AddEntityToSystem(entity);
     }
     _entitiesToAdded.clear();
+
+    for(auto& entity : _entitiesToBeKilled) {
+        const int entityID = entity.GetID();
+
+        RemoveEntityFromSystem(entity);
+        _entityComponentSigs[entityID].reset();
+        _freeEntityIDs.push_back(entityID);
+    }
+    _entitiesToBeKilled.clear();
 }
