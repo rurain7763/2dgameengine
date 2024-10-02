@@ -14,9 +14,24 @@ public:
     }
 
     void Update(SDL_Renderer* renderer, std::unique_ptr<AssetManager>& assetManager) {
+        struct Entry {
+            TransformComponent* transform;
+            SpriteComponent* sprite;
+        };
+
+        std::vector<Entry> sortedEntities;
         for(auto& entity : GetEntities()) {
-            auto& transform = entity.GetComponent<TransformComponent>();
-            auto& sprite = entity.GetComponent<SpriteComponent>();
+            Entry entry = {
+                .transform = &entity.GetComponent<TransformComponent>(),
+                .sprite = &entity.GetComponent<SpriteComponent>()
+            };
+            sortedEntities.push_back(entry);
+        }
+        std::sort(sortedEntities.begin(), sortedEntities.end(), [](const Entry& a, const Entry& b) { return a.sprite->zIndex < b.sprite->zIndex; });
+        
+        for(Entry& entry : sortedEntities) {
+            auto& transform = *entry.transform;
+            auto& sprite = *entry.sprite;
 
             SDL_Rect srcRt = {
                 sprite.srcRectX,

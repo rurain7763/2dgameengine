@@ -53,8 +53,6 @@ void Game::Init() {
     SDL_SetWindowFullscreen(_window, SDL_WINDOW_FULLSCREEN);
 
     _isRunning = true;
-
-    LOG("Hello world!");
 }
 
 void Game::Run() {
@@ -83,12 +81,12 @@ void Game::Setup() {
     Entity tank = _registry->CreateEntity();
     tank.AddComponent<TransformComponent>(glm::vec2(10, 30), glm::vec2(1, 1), 0);
     tank.AddComponent<RigidBodyComponent>(glm::vec2(50, 0));
-    tank.AddComponent<SpriteComponent>("tank_image", 32, 32);
+    tank.AddComponent<SpriteComponent>("tank_image", 32, 32, 2);
 
     Entity truck = _registry->CreateEntity();
     truck.AddComponent<TransformComponent>(glm::vec2(50, 100), glm::vec2(1, 1), 0);
     truck.AddComponent<RigidBodyComponent>(glm::vec2(0, 50));
-    truck.AddComponent<SpriteComponent>("truck_image", 32, 32);
+    truck.AddComponent<SpriteComponent>("truck_image", 32, 32, 1);
 
     std::fstream file("./assets/tilemaps/jungle.map");
     const float tileSize = 32.f;
@@ -103,7 +101,7 @@ void Game::Setup() {
 
             Entity tile = _registry->CreateEntity();
             tile.AddComponent<TransformComponent>(glm::vec2(x, y), glm::vec2(1, 1), 0);
-            tile.AddComponent<SpriteComponent>("jungle_map", tileSize, tileSize, (idx % numMapStride) * tileSize, (idx / numMapStride) * tileSize);
+            tile.AddComponent<SpriteComponent>("jungle_map", tileSize, tileSize, 0, (idx % numMapStride) * tileSize, (idx / numMapStride) * tileSize);
 
             line.erase(0, pos + 1);
             x += tileSize;
@@ -113,7 +111,7 @@ void Game::Setup() {
 
         Entity tile = _registry->CreateEntity();
         tile.AddComponent<TransformComponent>(glm::vec2(x, y), glm::vec2(1, 1), 0);
-        tile.AddComponent<SpriteComponent>("jungle_map", tileSize, tileSize, (idx % numMapStride) * tileSize, (idx / numMapStride) * tileSize);
+        tile.AddComponent<SpriteComponent>("jungle_map", tileSize, tileSize, 0, (idx % numMapStride) * tileSize, (idx / numMapStride) * tileSize);
 
         y += tileSize;
         x = 0;
