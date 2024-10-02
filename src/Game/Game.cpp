@@ -4,6 +4,7 @@
 #include "../Systems/MovementSystem.h"
 #include "../Systems/RenderSystem.h"
 #include "../Systems/AnimationSystem.h"
+#include "../Systems/CollisionSystem.h"
 
 #include <SDL2/SDL.h>
 #include <glm/glm.hpp>
@@ -29,8 +30,8 @@ void Game::Init() {
 
     SDL_DisplayMode displayMod;
     SDL_GetCurrentDisplayMode(0, &displayMod);
-    _windowWidth = displayMod.w;
-    _windowHeight = displayMod.h;
+    _windowWidth = displayMod.w / 2;
+    _windowHeight = displayMod.h / 2;
 
     _window = SDL_CreateWindow(
         nullptr,
@@ -51,7 +52,7 @@ void Game::Init() {
         return;
     }
     
-    SDL_SetWindowFullscreen(_window, SDL_WINDOW_FULLSCREEN);
+    //SDL_SetWindowFullscreen(_window, SDL_WINDOW_FULLSCREEN);
 
     _isRunning = true;
 }
@@ -73,8 +74,9 @@ void Game::Destroy() {
 
 void Game::Setup() {
     _registry->AddSystem<MovementSystem>();
-    _registry->AddSystem<RenderSystem>();
     _registry->AddSystem<AnimationSystem>();
+    _registry->AddSystem<CollisionSystem>();
+    _registry->AddSystem<RenderSystem>();
 
     _assetManager->AddTexture(_renderer, "tank_image", "./assets/images/tank-tiger-right.png");
     _assetManager->AddTexture(_renderer, "truck_image", "./assets/images/truck-ford-right.png");
@@ -86,11 +88,13 @@ void Game::Setup() {
     tank.AddComponent<TransformComponent>(glm::vec2(10, 30), glm::vec2(1, 1), 0);
     tank.AddComponent<RigidBodyComponent>(glm::vec2(50, 0));
     tank.AddComponent<SpriteComponent>("tank_image", 32, 32, 2);
+    tank.AddComponent<BoxColliderComponent>(32, 32);
 
     Entity truck = _registry->CreateEntity();
-    truck.AddComponent<TransformComponent>(glm::vec2(50, 100), glm::vec2(1, 1), 0);
-    truck.AddComponent<RigidBodyComponent>(glm::vec2(0, 50));
+    truck.AddComponent<TransformComponent>(glm::vec2(200, 30), glm::vec2(1, 1), 0);
+    truck.AddComponent<RigidBodyComponent>(glm::vec2(-50, 0));
     truck.AddComponent<SpriteComponent>("truck_image", 32, 32, 1);
+    truck.AddComponent<BoxColliderComponent>(32, 32);
 
     Entity chopper = _registry->CreateEntity();
     chopper.AddComponent<TransformComponent>(glm::vec2(100, 200), glm::vec2(1, 1), 0);
@@ -99,7 +103,7 @@ void Game::Setup() {
     chopper.AddComponent<AnimationComponent>(2, 5, true);
 
     Entity radar = _registry->CreateEntity();
-    radar.AddComponent<TransformComponent>(glm::vec2(700, 500), glm::vec2(1, 1), 0);
+    radar.AddComponent<TransformComponent>(glm::vec2(_windowWidth - 74, _windowHeight - 74), glm::vec2(1, 1), 0);
     radar.AddComponent<SpriteComponent>("radar_image", 64, 64, 3);
     radar.AddComponent<AnimationComponent>(8, 3, true);
 
@@ -160,6 +164,7 @@ void Game::Update() {
     _prevFrameMilliSecs = SDL_GetTicks();
 
     _registry->GetSystem<MovementSystem>().Update(deltaTime);
+    _registry->GetSystem<CollisionSystem>().Update();
     _registry->GetSystem<AnimationSystem>().Update();
 
     // 레지스트리 업데이트(실제로 entity 생성 및 삭제가 일어남)

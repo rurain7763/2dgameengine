@@ -117,6 +117,11 @@ public:
 
         if(componentID >= _componentPools.size()) {
             _componentPools.resize(componentID + 1);
+        }
+
+        // componentID 값이 순차적으로 들어오리라는 보장없음.
+        // 사이즈는 커져있어도 pool이 생성되지 않는 경우가 있음.
+        if(!_componentPools[componentID]) {
             _componentPools[componentID] = std::make_shared<ComponentPool<T>>();
         }
 
