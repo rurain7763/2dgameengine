@@ -14,6 +14,7 @@ public:
     }
 
     void Update(SDL_Renderer* renderer, std::unique_ptr<AssetManager>& assetManager) {
+        // zIndex 순으로 정렬
         struct Entry {
             TransformComponent* transform;
             SpriteComponent* sprite;
@@ -27,8 +28,11 @@ public:
             };
             sortedEntities.push_back(entry);
         }
-        std::sort(sortedEntities.begin(), sortedEntities.end(), [](const Entry& a, const Entry& b) { return a.sprite->zIndex < b.sprite->zIndex; });
+        std::sort(sortedEntities.begin(), sortedEntities.end(), [](const Entry& a, const Entry& b) { 
+            return a.sprite->zIndex < b.sprite->zIndex; 
+        });
         
+        // 그리기
         for(Entry& entry : sortedEntities) {
             auto& transform = *entry.transform;
             auto& sprite = *entry.sprite;

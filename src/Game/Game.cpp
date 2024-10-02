@@ -3,6 +3,7 @@
 
 #include "../Systems/MovementSystem.h"
 #include "../Systems/RenderSystem.h"
+#include "../Systems/AnimationSystem.h"
 
 #include <SDL2/SDL.h>
 #include <glm/glm.hpp>
@@ -73,9 +74,12 @@ void Game::Destroy() {
 void Game::Setup() {
     _registry->AddSystem<MovementSystem>();
     _registry->AddSystem<RenderSystem>();
+    _registry->AddSystem<AnimationSystem>();
 
     _assetManager->AddTexture(_renderer, "tank_image", "./assets/images/tank-tiger-right.png");
     _assetManager->AddTexture(_renderer, "truck_image", "./assets/images/truck-ford-right.png");
+    _assetManager->AddTexture(_renderer, "chopper_image", "./assets/images/chopper.png");
+    _assetManager->AddTexture(_renderer, "radar_image", "./assets/images/radar.png");
     _assetManager->AddTexture(_renderer, "jungle_map", "./assets/tilemaps/jungle.png");
 
     Entity tank = _registry->CreateEntity();
@@ -87,6 +91,17 @@ void Game::Setup() {
     truck.AddComponent<TransformComponent>(glm::vec2(50, 100), glm::vec2(1, 1), 0);
     truck.AddComponent<RigidBodyComponent>(glm::vec2(0, 50));
     truck.AddComponent<SpriteComponent>("truck_image", 32, 32, 1);
+
+    Entity chopper = _registry->CreateEntity();
+    chopper.AddComponent<TransformComponent>(glm::vec2(100, 200), glm::vec2(1, 1), 0);
+    chopper.AddComponent<RigidBodyComponent>(glm::vec2(50, 0));
+    chopper.AddComponent<SpriteComponent>("chopper_image", 32, 32, 3);
+    chopper.AddComponent<AnimationComponent>(2, 5, true);
+
+    Entity radar = _registry->CreateEntity();
+    radar.AddComponent<TransformComponent>(glm::vec2(700, 500), glm::vec2(1, 1), 0);
+    radar.AddComponent<SpriteComponent>("radar_image", 64, 64, 3);
+    radar.AddComponent<AnimationComponent>(8, 3, true);
 
     std::fstream file("./assets/tilemaps/jungle.map");
     const float tileSize = 32.f;
@@ -145,6 +160,7 @@ void Game::Update() {
     _prevFrameMilliSecs = SDL_GetTicks();
 
     _registry->GetSystem<MovementSystem>().Update(deltaTime);
+    _registry->GetSystem<AnimationSystem>().Update();
 
     // 레지스트리 업데이트(실제로 entity 생성 및 삭제가 일어남)
     _registry->Update();
