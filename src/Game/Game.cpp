@@ -7,6 +7,7 @@
 #include "../Systems/CollisionSystem.h"
 #include "../Systems/DebugRenderSystem.h"
 #include "../Systems/DamageSystem.h"
+#include "../Systems/KeyboardMovementSystem.h"
 
 #include <SDL2/SDL.h>
 #include <glm/glm.hpp>
@@ -82,6 +83,7 @@ void Game::Setup() {
     _registry->AddSystem<RenderSystem>();
     _registry->AddSystem<DebugRenderSystem>();
     _registry->AddSystem<DamageSystem>();
+    _registry->AddSystem<KeyboardMovementSystem>();
 
     _assetManager->AddTexture(_renderer, "tank_image", "./assets/images/tank-tiger-right.png");
     _assetManager->AddTexture(_renderer, "truck_image", "./assets/images/truck-ford-right.png");
@@ -156,6 +158,7 @@ void Game::ProcessInput() {
                 if(event.key.keysym.sym == SDLK_ESCAPE) {
                     _isRunning = false;
                 }
+                _eventBus->EmitEvent<KeyPressedEvent>(event.key.keysym.sym);
                 break;
         }
     }
@@ -171,6 +174,7 @@ void Game::Update() {
 
     _eventBus->Reset();
     _registry->GetSystem<DamageSystem>().SubscribeToEvents(_eventBus);
+    _registry->GetSystem<KeyboardMovementSystem>().SubscribeToEvents(_eventBus);
 
     _registry->GetSystem<MovementSystem>().Update(deltaTime);
     _registry->GetSystem<CollisionSystem>().Update(_eventBus);
