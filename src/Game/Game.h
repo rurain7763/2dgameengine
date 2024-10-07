@@ -3,6 +3,7 @@
 
 #include "../ECS/ECS.h"
 #include "../AssetManager/AssetManager.h"
+#include "../EventBus/EventBus.h"
 
 const int FPS = 60;
 const int MILLISECS_PER_FRAME = 1000 / FPS;
@@ -33,6 +34,7 @@ private:
 
     std::unique_ptr<Registry> _registry;
     std::unique_ptr<AssetManager> _assetManager;
+    std::unique_ptr<EventBus> _eventBus;
 };
 
 #endif

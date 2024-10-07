@@ -59,6 +59,7 @@ Entity Registry::CreateEntity() {
 
 void Registry::KillEntity(const Entity& entity) {
     _entitiesToBeKilled.insert(entity);
+    LOG("Entity %d killed!", entity.GetID());
 }
 
 void Registry::AddEntityToSystem(const Entity& entity) {

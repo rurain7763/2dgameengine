@@ -4,6 +4,8 @@
 #include "../ECS/ECS.h"
 #include "../Components/TransformComponent.h"
 #include "../Components/BoxColliderComponent.h"
+#include "../EventBus/EventBus.h"
+#include "../Events/CollisionEvent.h"
 
 class CollisionSystem : public System {
 public:
@@ -12,7 +14,7 @@ public:
         RequireComponent<BoxColliderComponent>();
     }
 
-    void Update() {
+    void Update(std::unique_ptr<EventBus>& eventBus) {
         auto& entities = GetEntities();
 
         for(auto& entity : entities) {
@@ -21,8 +23,10 @@ public:
         }
 
         for(int i = 0; i < entities.size(); i++) {
-            auto& transformA = entities[i].GetComponent<TransformComponent>();
-            auto& boxColliderA = entities[i].GetComponent<BoxColliderComponent>();
+            const Entity& a = entities[i];
+
+            auto& transformA = a.GetComponent<TransformComponent>();
+            auto& boxColliderA = a.GetComponent<BoxColliderComponent>();
 
             // y축이 스크린 좌표계이므로 반전임을 주의!
             float lA = transformA.position.x + boxColliderA.offset.x;
@@ -31,8 +35,10 @@ public:
             float bA = tA + boxColliderA.height;
 
             for(int j = i + 1; j < entities.size(); j++) {
-                auto& transformB = entities[j].GetComponent<TransformComponent>();
-                auto& boxColliderB = entities[j].GetComponent<BoxColliderComponent>();
+                const Entity& b = entities[j];
+
+                auto& transformB = b.GetComponent<TransformComponent>();
+                auto& boxColliderB = b.GetComponent<BoxColliderComponent>();
 
                 // y축이 스크린 좌표계이므로 반전임을 주의!
                 float lB = transformB.position.x + boxColliderB.offset.x;
@@ -41,13 +47,9 @@ public:
                 float bB = tB + boxColliderB.height;
 
                 if(AABB(lA, rA, tA, bA, lB, rB, tB, bB)) {
-                    // TODO:
-                    boxColliderA.collidedCount++;
+                    boxColliderA.collidedCount++; 
                     boxColliderB.collidedCount++;
-
-                    // 테스트 코드임.
-                    entities[i].Kill();
-                    entities[j].Kill();
+                    eventBus->EmitEvent<CollisionEvent>(a, b);
                 }
             }
         }

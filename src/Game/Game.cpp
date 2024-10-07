@@ -6,6 +6,7 @@
 #include "../Systems/AnimationSystem.h"
 #include "../Systems/CollisionSystem.h"
 #include "../Systems/DebugRenderSystem.h"
+#include "../Systems/DamageSystem.h"
 
 #include <SDL2/SDL.h>
 #include <glm/glm.hpp>
@@ -17,6 +18,7 @@ Game::Game()
 {
     _registry = std::make_unique<Registry>();
     _assetManager = std::make_unique<AssetManager>();
+    _eventBus = std::make_unique<EventBus>();
 }
 
 Game::~Game() {
@@ -79,6 +81,7 @@ void Game::Setup() {
     _registry->AddSystem<CollisionSystem>();
     _registry->AddSystem<RenderSystem>();
     _registry->AddSystem<DebugRenderSystem>();
+    _registry->AddSystem<DamageSystem>();
 
     _assetManager->AddTexture(_renderer, "tank_image", "./assets/images/tank-tiger-right.png");
     _assetManager->AddTexture(_renderer, "truck_image", "./assets/images/truck-ford-right.png");
@@ -158,7 +161,6 @@ void Game::ProcessInput() {
     }
 }
 
-glm::vec2 position = {10, 10};
 void Game::Update() {
     int timeToWait = (_prevFrameMilliSecs + MILLISECS_PER_FRAME) - SDL_GetTicks();
     if(timeToWait > 0) {
@@ -167,8 +169,11 @@ void Game::Update() {
     float deltaTime = (SDL_GetTicks() - _prevFrameMilliSecs) / 1000.0;
     _prevFrameMilliSecs = SDL_GetTicks();
 
+    _eventBus->Reset();
+    _registry->GetSystem<DamageSystem>().SubscribeToEvents(_eventBus);
+
     _registry->GetSystem<MovementSystem>().Update(deltaTime);
-    _registry->GetSystem<CollisionSystem>().Update();
+    _registry->GetSystem<CollisionSystem>().Update(_eventBus);
     _registry->GetSystem<AnimationSystem>().Update();
 
     // 레지스트리 업데이트(실제로 entity 생성 및 삭제가 일어남)
