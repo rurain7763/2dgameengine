@@ -28,7 +28,7 @@ public:
         switch(event.keyCode) {
             case SDLK_SPACE:
                 for(auto& entity : GetEntities()) {
-                    if(!entity.HasComponent<CameraFollowComponent>()) continue;
+                    if(!entity.HasTag("player")) continue;
 
                     auto& transform = entity.GetComponent<TransformComponent>();
                     auto& projectileEmit = entity.GetComponent<ProjectileEmitterComponent>();
@@ -41,6 +41,7 @@ public:
                     }
                     
                     Entity projectile = entity.CreateEntity();
+                    projectile.Group("projectiles");
                     projectile.AddComponent<TransformComponent>(initPos, glm::vec2(1, 1), 0);
                     projectile.AddComponent<RigidBodyComponent>(projectileEmit.projectileVelocity * transform.forward);
                     projectile.AddComponent<BoxColliderComponent>(4, 4);
@@ -69,6 +70,7 @@ public:
                 }
                 
                 Entity projectile = registry->CreateEntity();
+                projectile.Group("projectiles");
                 projectile.AddComponent<TransformComponent>(initPos, glm::vec2(1, 1), 0);
                 projectile.AddComponent<RigidBodyComponent>(projectileEmit.projectileVelocity);
                 projectile.AddComponent<BoxColliderComponent>(4, 4);

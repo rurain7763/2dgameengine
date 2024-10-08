@@ -18,7 +18,8 @@ class Entity {
 public:
     Entity(class Registry* registry, int id) : _registry(registry), _id(id) {}
     Entity(const Entity& other) = default;
-    int GetID() const;
+
+    inline int GetID() const { return _id; }
 
     template<typename T, typename ...TArgs> void AddComponent(TArgs&& ...args) const;
     template<typename T> void RemoveComponent() const;
@@ -27,6 +28,12 @@ public:
 
     Entity CreateEntity() const;
     void Kill() const;
+
+    void Tag(const std::string& tag) const;
+    bool HasTag(const std::string& tag) const;
+
+    void Group(const std::string& group) const;
+    bool BelongsToGroup(const std::string& group) const;
 
     Entity& operator=(const Entity& other) = default;
     bool operator==(const Entity& other) const { return _id == other.GetID(); }
@@ -195,6 +202,16 @@ public:
     void AddEntityToSystem(const Entity& entity);
     void RemoveEntityFromSystem(const Entity& entity);
 
+    void TagEntity(const Entity& entity, const std::string& tag);
+    bool EntityHasTag(const Entity& entity, const std::string& tag) const;
+    Entity GetEntityByTag(const std::string& tag) const;
+    void RemoveEntityTag(const Entity& entity);
+
+    void GroupEntity(const Entity& entity, const std::string& group);
+    bool EntityBelongsToGroup(const Entity& entity, const std::string& group) const;
+    std::vector<Entity> GetEntitiesByGroup(const std::string& group) const;
+    void RemoveEntityGroup(const Entity& entity);
+
     void Update();
 
 private:
@@ -206,6 +223,12 @@ private:
     std::vector<std::shared_ptr<IComponentPool>> _componentPools;
     std::vector<Signature> _entityComponentSigs;
     std::unordered_map<std::type_index, std::shared_ptr<System>> _systems;
+
+    std::unordered_map<std::string, Entity> _entityPerTag;
+    std::unordered_map<int, std::string> _tagPerEntities;
+
+    std::unordered_map<std::string, std::set<Entity>> _entitiesPerGroup;
+    std::unordered_map<int, std::string> _groupPerEntity;
 };
 
 template<typename T, typename ...TArgs> void Entity::AddComponent(TArgs&& ...args) const {

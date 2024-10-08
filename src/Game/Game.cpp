@@ -102,6 +102,7 @@ void Game::Setup() {
     _assetManager->AddTexture(_renderer, "bullet_image", "./assets/images/bullet.png");
 
     Entity tank = _registry->CreateEntity();
+    tank.Group("enemies");
     tank.AddComponent<TransformComponent>(glm::vec2(10, 30), glm::vec2(1, 1), 0);
     tank.AddComponent<RigidBodyComponent>(glm::vec2(0, 0));
     tank.AddComponent<SpriteComponent>("tank_image", 32, 32, 2);
@@ -111,6 +112,7 @@ void Game::Setup() {
     tank.AddComponent<HealthComponent>();
 
     Entity truck = _registry->CreateEntity();
+    truck.Group("enemies");
     truck.AddComponent<TransformComponent>(glm::vec2(200, 30), glm::vec2(1, 1), 0);
     truck.AddComponent<RigidBodyComponent>(glm::vec2(0, 0));
     truck.AddComponent<SpriteComponent>("truck_image", 32, 32, 1);
@@ -120,9 +122,11 @@ void Game::Setup() {
     truck.AddComponent<HealthComponent>();
 
     Entity chopper = _registry->CreateEntity();
+    chopper.Tag("player");
     chopper.AddComponent<TransformComponent>(glm::vec2(0, 0), glm::vec2(1, 1), 0);
     chopper.AddComponent<RigidBodyComponent>(glm::vec2(0, 0));
     chopper.AddComponent<SpriteComponent>("chopper_spritesheet", 32, 32, 3);
+    chopper.AddComponent<BoxColliderComponent>(32, 32);
     chopper.AddComponent<AnimationComponent>(2, 5, true);
     chopper.AddComponent<KeyboardControlledComponent>(glm::vec2(0, -80), glm::vec2(80, 0), glm::vec2(0, 80), glm::vec2(-80, 0));
     chopper.AddComponent<CameraFollowComponent>();
@@ -147,6 +151,7 @@ void Game::Setup() {
             idx = stoi(line.substr(0, pos));
 
             Entity tile = _registry->CreateEntity();
+            tile.Tag("tiles");
             tile.AddComponent<TransformComponent>(glm::vec2(x, y), glm::vec2(tileScale, tileScale), 0);
             tile.AddComponent<SpriteComponent>("jungle_map", tileSize, tileSize, 0, (idx % numMapStride) * tileSize, (idx / numMapStride) * tileSize);
 
@@ -157,6 +162,7 @@ void Game::Setup() {
         idx = stoi(line);
 
         Entity tile = _registry->CreateEntity();
+        tile.Tag("tiles");
         tile.AddComponent<TransformComponent>(glm::vec2(x, y), glm::vec2(tileScale, tileScale), 0);
         tile.AddComponent<SpriteComponent>("jungle_map", tileSize, tileSize, 0, (idx % numMapStride) * tileSize, (idx / numMapStride) * tileSize);
         x += tileSize * tileScale;
