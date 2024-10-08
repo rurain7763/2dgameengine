@@ -25,6 +25,7 @@ public:
     template<typename T> bool HasComponent() const;
     template<typename T> T& GetComponent() const;
 
+    Entity CreateEntity() const;
     void Kill() const;
 
     Entity& operator=(const Entity& other) = default;

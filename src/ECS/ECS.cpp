@@ -6,6 +6,10 @@ int Entity::GetID() const {
     return _id;
 }
 
+Entity Entity::CreateEntity() const {
+    return _registry->CreateEntity();
+}
+
 void Entity::Kill() const {
     _registry->KillEntity(*this);
 }
