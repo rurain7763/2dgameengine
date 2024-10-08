@@ -171,6 +171,11 @@ void Registry::Update() {
         const int entityID = entity.GetID();
 
         RemoveEntityFromSystem(entity);
+
+        for(auto& pool : _componentPools) {
+            pool->Remove(entityID);
+        }
+
         _entityComponentSigs[entityID].reset();
         _freeEntityIDs.push_back(entityID);
 

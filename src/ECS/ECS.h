@@ -84,33 +84,70 @@ private:
 class IComponentPool {
 public:
     virtual ~IComponentPool() = default;
+
+    virtual void Remove(const int entityID) = 0;
 };
 
 template <typename T>
 class ComponentPool : public IComponentPool {
 public:
-    int Size() const {
-        return _components.size();
+    ComponentPool(int capacity = 100) {
+        _size = 0;
+        _components.resize(capacity);
     }
 
-    void Resize(const int size) {
-        _components.resize(size);
+    virtual ~ComponentPool() override = default;
+
+    void Set(const int entityID, const T& component) {
+        auto pair = _entityIDToIndex.find(entityID);
+        if(pair != _entityIDToIndex.end()) {
+            // 이미 존재하는 entity에 넣으려고 시도함 => 덮어씌움
+            _components[pair->second] = component;
+        } else {
+            if(_size >= _components.capacity()) {
+                _components.resize(_size * 2);
+            }
+
+            _components[_size] = component;
+            _indexToEntityID.emplace(_size, entityID);
+            _entityIDToIndex.emplace(entityID, _size);
+
+            _size++;
+        }
     }
 
-    void Set(int idx, const T& component) {
-        _components[idx] = component;
+    virtual void Remove(const int entityID) override {
+        if(_entityIDToIndex.find(entityID) == _entityIDToIndex.end()) return;
+
+        // 마지막과 component와 swap
+        int targetIndex = _entityIDToIndex[entityID];
+        int lastIndex = _size - 1;
+        int lastEntityID = _indexToEntityID[lastIndex];
+
+        _components[targetIndex] = _components[lastIndex];
+        _indexToEntityID[targetIndex] = lastEntityID;
+        _entityIDToIndex[lastEntityID] = targetIndex;
+
+        _indexToEntityID.erase(lastIndex);
+        _entityIDToIndex.erase(entityID);
+
+        _size--;
     }
 
-    T& Get(int idx) {
-        return _components[idx];
+    T& Get(const int entityID) {
+        return _components.at(_entityIDToIndex[entityID]);
     }
 
-    T& operator[](int idx) {
-        return static_cast<T&>(_components[idx]);
+    T& operator[](const int entityID) {
+        return Get(entityID);
     }
 
 private:
     std::vector<T> _components;
+    int _size;
+
+    std::unordered_map<int, int> _indexToEntityID;
+    std::unordered_map<int, int> _entityIDToIndex;
 };
 
 // Entity, Component, System 관리자
@@ -139,10 +176,6 @@ public:
 
         auto pool = std::static_pointer_cast<ComponentPool<T>>(_componentPools[componentID]);
 
-        if(entityID >= pool->Size()) {
-            pool->Resize(entityID + 1);
-        }
-
         // 주의 : 이 부분에서 컴파일 에러 발생 시 기본 생성자가 없는 것이므로 확인할것
         T newComponent(std::forward<TArgs>(args)...);
 
@@ -156,6 +189,8 @@ public:
     void RemoveComponent(const Entity& entity) {
         const int componentID = Component<T>::GetID();
         const int entityID = entity.GetID();
+        auto pool = std::static_pointer_cast<ComponentPool<T>>(_componentPools[componentID]);
+        pool->Remove(entityID);
         _entityComponentSigs[entityID].set(componentID, false);
         LOG("Component id = %d was removed from entity id %d", componentID, entityID);
     }

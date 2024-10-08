@@ -127,6 +127,7 @@ void Game::Setup() {
     chopper.AddComponent<RigidBodyComponent>(glm::vec2(0, 0));
     chopper.AddComponent<SpriteComponent>("chopper_spritesheet", 32, 32, 3);
     chopper.AddComponent<BoxColliderComponent>(32, 32);
+    chopper.AddComponent<DebugRenderComponent>(true);
     chopper.AddComponent<AnimationComponent>(2, 5, true);
     chopper.AddComponent<KeyboardControlledComponent>(glm::vec2(0, -80), glm::vec2(80, 0), glm::vec2(0, 80), glm::vec2(-80, 0));
     chopper.AddComponent<CameraFollowComponent>();
