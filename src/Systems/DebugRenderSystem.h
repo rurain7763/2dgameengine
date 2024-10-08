@@ -32,8 +32,8 @@ public:
         SDL_Rect rt;
         rt.x = static_cast<int>(transform.position.x - camera.x + boxCollider.offset.x);
         rt.y = static_cast<int>(transform.position.y - camera.y + boxCollider.offset.y);
-        rt.w = boxCollider.width;
-        rt.h = boxCollider.height;
+        rt.w = boxCollider.width * transform.scale.x;
+        rt.h = boxCollider.height * transform.scale.y;
 
         if(boxCollider.collidedCount) {
             SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);

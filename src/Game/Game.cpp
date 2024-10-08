@@ -9,6 +9,7 @@
 #include "../Systems/DamageSystem.h"
 #include "../Systems/KeyboardMovementSystem.h"
 #include "../Systems/CameraMovementSystem.h"
+#include "../Systems/ProjectileEmitSystem.h"
 
 #include <iostream>
 #include <fstream>
@@ -89,26 +90,30 @@ void Game::Setup() {
     _registry->AddSystem<DamageSystem>();
     _registry->AddSystem<KeyboardMovementSystem>();
     _registry->AddSystem<CameraMovementSystem>();
+    _registry->AddSystem<ProjectileEmitSystem>();
 
     _assetManager->AddTexture(_renderer, "tank_image", "./assets/images/tank-tiger-right.png");
     _assetManager->AddTexture(_renderer, "truck_image", "./assets/images/truck-ford-right.png");
     _assetManager->AddTexture(_renderer, "chopper_spritesheet", "./assets/images/chopper-spritesheet.png");
     _assetManager->AddTexture(_renderer, "radar_image", "./assets/images/radar.png");
     _assetManager->AddTexture(_renderer, "jungle_map", "./assets/tilemaps/jungle.png");
+    _assetManager->AddTexture(_renderer, "bullet_image", "./assets/images/bullet.png");
 
     Entity tank = _registry->CreateEntity();
     tank.AddComponent<TransformComponent>(glm::vec2(10, 30), glm::vec2(1, 1), 0);
-    tank.AddComponent<RigidBodyComponent>(glm::vec2(50, 0));
+    tank.AddComponent<RigidBodyComponent>(glm::vec2(0, 0));
     tank.AddComponent<SpriteComponent>("tank_image", 32, 32, 2);
     tank.AddComponent<BoxColliderComponent>(32, 32);
     tank.AddComponent<DebugRenderComponent>(true);
+    tank.AddComponent<ProjectileEmitterComponent>(glm::vec2(100, 0), 2000);
 
     Entity truck = _registry->CreateEntity();
     truck.AddComponent<TransformComponent>(glm::vec2(200, 30), glm::vec2(1, 1), 0);
-    truck.AddComponent<RigidBodyComponent>(glm::vec2(100, 0));
+    truck.AddComponent<RigidBodyComponent>(glm::vec2(0, 0));
     truck.AddComponent<SpriteComponent>("truck_image", 32, 32, 1);
     truck.AddComponent<BoxColliderComponent>(32, 32);
     truck.AddComponent<DebugRenderComponent>(true);
+    truck.AddComponent<ProjectileEmitterComponent>(glm::vec2(0, 100), 3000);
 
     Entity chopper = _registry->CreateEntity();
     chopper.AddComponent<TransformComponent>(glm::vec2(0, 0), glm::vec2(1, 1), 0);
@@ -190,6 +195,7 @@ void Game::Update() {
     _registry->GetSystem<MovementSystem>().Update(deltaTime);
     _registry->GetSystem<CollisionSystem>().Update(_eventBus);
     _registry->GetSystem<AnimationSystem>().Update();
+    _registry->GetSystem<ProjectileEmitSystem>().Update(_registry);
     _registry->GetSystem<CameraMovementSystem>().Update(_camera, _mapSize);
 
     // 레지스트리 업데이트(실제로 entity 생성 및 삭제가 일어남)
