@@ -87,7 +87,7 @@ void Game::Setup() {
 
     _assetManager->AddTexture(_renderer, "tank_image", "./assets/images/tank-tiger-right.png");
     _assetManager->AddTexture(_renderer, "truck_image", "./assets/images/truck-ford-right.png");
-    _assetManager->AddTexture(_renderer, "chopper_image", "./assets/images/chopper.png");
+    _assetManager->AddTexture(_renderer, "chopper_spritesheet", "./assets/images/chopper-spritesheet.png");
     _assetManager->AddTexture(_renderer, "radar_image", "./assets/images/radar.png");
     _assetManager->AddTexture(_renderer, "jungle_map", "./assets/tilemaps/jungle.png");
 
@@ -107,9 +107,17 @@ void Game::Setup() {
 
     Entity chopper = _registry->CreateEntity();
     chopper.AddComponent<TransformComponent>(glm::vec2(100, 200), glm::vec2(1, 1), 0);
-    chopper.AddComponent<RigidBodyComponent>(glm::vec2(50, 0));
-    chopper.AddComponent<SpriteComponent>("chopper_image", 32, 32, 3);
+    chopper.AddComponent<RigidBodyComponent>(glm::vec2(0, 0));
+    chopper.AddComponent<SpriteComponent>("chopper_spritesheet", 32, 32, 3);
     chopper.AddComponent<AnimationComponent>(2, 5, true);
+    chopper.AddComponent<KeyboardControlledComponent>(glm::vec2(0, -20), glm::vec2(20, 0), glm::vec2(0, 20), glm::vec2(-20, 0));
+
+    Entity chopperB = _registry->CreateEntity();
+    chopperB.AddComponent<TransformComponent>(glm::vec2(100, 200), glm::vec2(1, 1), 0);
+    chopperB.AddComponent<RigidBodyComponent>(glm::vec2(0, 0));
+    chopperB.AddComponent<SpriteComponent>("chopper_spritesheet", 32, 32, 3);
+    chopperB.AddComponent<AnimationComponent>(2, 5, true);
+    chopperB.AddComponent<KeyboardControlledComponent>(glm::vec2(0, -50), glm::vec2(50, 0), glm::vec2(0, 50), glm::vec2(-50, 0));
 
     Entity radar = _registry->CreateEntity();
     radar.AddComponent<TransformComponent>(glm::vec2(_windowWidth - 74, _windowHeight - 74), glm::vec2(1, 1), 0);
