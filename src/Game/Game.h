@@ -5,6 +5,9 @@
 #include "../AssetManager/AssetManager.h"
 #include "../EventBus/EventBus.h"
 
+#include <SDL2/SDL.h>
+#include <glm/glm.hpp>
+
 const int FPS = 60;
 const int MILLISECS_PER_FRAME = 1000 / FPS;
 
@@ -24,8 +27,10 @@ private:
     void Render();
 
 private:
-    struct SDL_Window* _window;
-    struct SDL_Renderer* _renderer;
+    SDL_Window* _window;
+    SDL_Renderer* _renderer;
+    SDL_Rect _camera;
+    glm::vec2 _mapSize;
 
     bool _isRunning;
     int _windowWidth, _windowHeight;

@@ -8,9 +8,8 @@
 #include "../Systems/DebugRenderSystem.h"
 #include "../Systems/DamageSystem.h"
 #include "../Systems/KeyboardMovementSystem.h"
+#include "../Systems/CameraMovementSystem.h"
 
-#include <SDL2/SDL.h>
-#include <glm/glm.hpp>
 #include <iostream>
 #include <fstream>
 
@@ -58,6 +57,11 @@ void Game::Init() {
     
     //SDL_SetWindowFullscreen(_window, SDL_WINDOW_FULLSCREEN);
 
+    _camera.x = 0;
+    _camera.y = 0;
+    _camera.w = _windowWidth;
+    _camera.h = _windowHeight;
+
     _isRunning = true;
 }
 
@@ -84,6 +88,7 @@ void Game::Setup() {
     _registry->AddSystem<DebugRenderSystem>();
     _registry->AddSystem<DamageSystem>();
     _registry->AddSystem<KeyboardMovementSystem>();
+    _registry->AddSystem<CameraMovementSystem>();
 
     _assetManager->AddTexture(_renderer, "tank_image", "./assets/images/tank-tiger-right.png");
     _assetManager->AddTexture(_renderer, "truck_image", "./assets/images/truck-ford-right.png");
@@ -106,26 +111,21 @@ void Game::Setup() {
     truck.AddComponent<DebugRenderComponent>(true);
 
     Entity chopper = _registry->CreateEntity();
-    chopper.AddComponent<TransformComponent>(glm::vec2(100, 200), glm::vec2(1, 1), 0);
+    chopper.AddComponent<TransformComponent>(glm::vec2(0, 0), glm::vec2(1, 1), 0);
     chopper.AddComponent<RigidBodyComponent>(glm::vec2(0, 0));
     chopper.AddComponent<SpriteComponent>("chopper_spritesheet", 32, 32, 3);
     chopper.AddComponent<AnimationComponent>(2, 5, true);
-    chopper.AddComponent<KeyboardControlledComponent>(glm::vec2(0, -20), glm::vec2(20, 0), glm::vec2(0, 20), glm::vec2(-20, 0));
-
-    Entity chopperB = _registry->CreateEntity();
-    chopperB.AddComponent<TransformComponent>(glm::vec2(100, 200), glm::vec2(1, 1), 0);
-    chopperB.AddComponent<RigidBodyComponent>(glm::vec2(0, 0));
-    chopperB.AddComponent<SpriteComponent>("chopper_spritesheet", 32, 32, 3);
-    chopperB.AddComponent<AnimationComponent>(2, 5, true);
-    chopperB.AddComponent<KeyboardControlledComponent>(glm::vec2(0, -50), glm::vec2(50, 0), glm::vec2(0, 50), glm::vec2(-50, 0));
+    chopper.AddComponent<KeyboardControlledComponent>(glm::vec2(0, -80), glm::vec2(80, 0), glm::vec2(0, 80), glm::vec2(-80, 0));
+    chopper.AddComponent<CameraFollowComponent>();
 
     Entity radar = _registry->CreateEntity();
     radar.AddComponent<TransformComponent>(glm::vec2(_windowWidth - 74, _windowHeight - 74), glm::vec2(1, 1), 0);
-    radar.AddComponent<SpriteComponent>("radar_image", 64, 64, 3);
+    radar.AddComponent<SpriteComponent>("radar_image", 64, 64, 3, 0, 0, true);
     radar.AddComponent<AnimationComponent>(8, 3, true);
 
     std::fstream file("./assets/tilemaps/jungle.map");
     const float tileSize = 32.f;
+    const float tileScale = 2.f;
     const int numMapStride = 10;
     int x = 0, y = 0;
     std::string line;
@@ -136,21 +136,24 @@ void Game::Setup() {
             idx = stoi(line.substr(0, pos));
 
             Entity tile = _registry->CreateEntity();
-            tile.AddComponent<TransformComponent>(glm::vec2(x, y), glm::vec2(1, 1), 0);
+            tile.AddComponent<TransformComponent>(glm::vec2(x, y), glm::vec2(tileScale, tileScale), 0);
             tile.AddComponent<SpriteComponent>("jungle_map", tileSize, tileSize, 0, (idx % numMapStride) * tileSize, (idx / numMapStride) * tileSize);
 
             line.erase(0, pos + 1);
-            x += tileSize;
+            x += tileSize * tileScale;
         }
 
         idx = stoi(line);
 
         Entity tile = _registry->CreateEntity();
-        tile.AddComponent<TransformComponent>(glm::vec2(x, y), glm::vec2(1, 1), 0);
+        tile.AddComponent<TransformComponent>(glm::vec2(x, y), glm::vec2(tileScale, tileScale), 0);
         tile.AddComponent<SpriteComponent>("jungle_map", tileSize, tileSize, 0, (idx % numMapStride) * tileSize, (idx / numMapStride) * tileSize);
-
-        y += tileSize;
+        x += tileSize * tileScale;
+        _mapSize.x = x;
         x = 0;
+
+        y += tileSize * tileScale;
+        _mapSize.y = y;
     }
     file.close();
 }
@@ -187,6 +190,7 @@ void Game::Update() {
     _registry->GetSystem<MovementSystem>().Update(deltaTime);
     _registry->GetSystem<CollisionSystem>().Update(_eventBus);
     _registry->GetSystem<AnimationSystem>().Update();
+    _registry->GetSystem<CameraMovementSystem>().Update(_camera, _mapSize);
 
     // 레지스트리 업데이트(실제로 entity 생성 및 삭제가 일어남)
     _registry->Update();
@@ -196,7 +200,7 @@ void Game::Render() {
     SDL_SetRenderDrawColor(_renderer, 0, 0, 0, 0);
     SDL_RenderClear(_renderer);
 
-    _registry->GetSystem<RenderSystem>().Update(_renderer, _assetManager);
+    _registry->GetSystem<RenderSystem>().Update(_renderer, _assetManager, _camera);
     _registry->GetSystem<DebugRenderSystem>().Update(_renderer);
 
     SDL_RenderPresent(_renderer);

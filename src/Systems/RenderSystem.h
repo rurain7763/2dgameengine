@@ -13,7 +13,7 @@ public:
         RequireComponent<SpriteComponent>();
     }
 
-    void Update(SDL_Renderer* renderer, std::unique_ptr<AssetManager>& assetManager) {
+    void Update(SDL_Renderer* renderer, std::unique_ptr<AssetManager>& assetManager, SDL_Rect& camera) {
         // zIndex 순으로 정렬
         struct Entry {
             TransformComponent* transform;
@@ -45,8 +45,8 @@ public:
             };
 
             SDL_Rect dstRt = {
-                static_cast<int>(transform.position.x),
-                static_cast<int>(transform.position.y),
+                static_cast<int>(transform.position.x - (sprite.isFixed ? 0 : camera.x)),
+                static_cast<int>(transform.position.y - (sprite.isFixed ? 0 : camera.y)),
                 static_cast<int>(sprite.width * transform.scale.x),
                 static_cast<int>(sprite.height * transform.scale.y)
             };
