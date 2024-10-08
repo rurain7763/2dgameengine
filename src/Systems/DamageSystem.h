@@ -3,6 +3,7 @@
 
 #include "../ECS/ECS.h"
 #include "../Components/BoxColliderComponent.h"
+#include "../Components/HealthComponent.h"
 #include "../EventBus/EventBus.h"
 #include "../Events/CollisionEvent.h"
 #include "../Logger/Logger.h"
