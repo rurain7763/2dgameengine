@@ -105,7 +105,7 @@ void Game::Setup() {
 
     Entity truck = _registry->CreateEntity();
     truck.AddComponent<TransformComponent>(glm::vec2(200, 30), glm::vec2(1, 1), 0);
-    truck.AddComponent<RigidBodyComponent>(glm::vec2(-50, 0));
+    truck.AddComponent<RigidBodyComponent>(glm::vec2(100, 0));
     truck.AddComponent<SpriteComponent>("truck_image", 32, 32, 1);
     truck.AddComponent<BoxColliderComponent>(32, 32);
     truck.AddComponent<DebugRenderComponent>(true);
@@ -201,7 +201,7 @@ void Game::Render() {
     SDL_RenderClear(_renderer);
 
     _registry->GetSystem<RenderSystem>().Update(_renderer, _assetManager, _camera);
-    _registry->GetSystem<DebugRenderSystem>().Update(_renderer);
+    _registry->GetSystem<DebugRenderSystem>().Update(_renderer, _camera);
 
     SDL_RenderPresent(_renderer);
 }

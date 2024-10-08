@@ -19,8 +19,6 @@ public:
 
     void OnCollision(CollisionEvent& event) {
         LOG("damage system recieved %d entity and %d entity are collided!", event.entityA.GetID(), event.entityB.GetID());
-        event.entityA.Kill();
-        event.entityB.Kill();
     }
 };
 
