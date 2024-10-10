@@ -6,7 +6,8 @@ SRC_FILES = ./src/*.cpp \
 			./src/Logger/*.cpp \
 			./src/Game/*.cpp \
 			./src/ECS/*.cpp \
-			./src/AssetManager/*.cpp
+			./src/AssetManager/*.cpp \
+			./libs/imgui/*.cpp
 LIB_PATH = -L/opt/homebrew/lib
 LIBS = -lSDL2 -lSDL2_image -lSDL2_ttf -lglm
 PROJECT = engine

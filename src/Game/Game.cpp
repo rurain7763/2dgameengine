@@ -1,6 +1,10 @@
 #include "Game.h"
 #include "../Logger/Logger.h"
 
+#include "../../libs/imgui/imgui.h"
+#include "../../libs/imgui/imgui_sdl.h"
+#include "../../libs/imgui/imgui_impl_sdl.h"
+
 #include "../Systems/MovementSystem.h"
 #include "../Systems/RenderSystem.h"
 #include "../Systems/AnimationSystem.h"
@@ -30,6 +34,7 @@ Game::~Game() {
 }
 
 void Game::Init() {
+    // sdl 초기화
     if(SDL_Init(SDL_INIT_EVERYTHING) != 0) {
         Logger::Err("error init SDL");
         return;
@@ -66,6 +71,10 @@ void Game::Init() {
     
     //SDL_SetWindowFullscreen(_window, SDL_WINDOW_FULLSCREEN);
 
+    // imgui 초기화
+    ImGui::CreateContext();
+    ImGuiSDL::Initialize(_renderer, _windowWidth, _windowHeight);
+
     _camera.x = 0;
     _camera.y = 0;
     _camera.w = _windowWidth;
@@ -86,6 +95,8 @@ void Game::Run() {
 void Game::Destroy() {
     _assetManager->ClearAssets();
 
+    ImGuiSDL::Deinitialize();
+    ImGui::DestroyContext();
     SDL_DestroyRenderer(_renderer);
     SDL_DestroyWindow(_window);
     TTF_Quit();
@@ -199,6 +210,18 @@ void Game::Setup() {
 void Game::ProcessInput() {
     SDL_Event event;
     while(SDL_PollEvent(&event)) {
+        // SDL input 처리
+        ImGui_ImplSDL2_ProcessEvent(&event);
+        ImGuiIO& io = ImGui::GetIO();
+
+        int mouseX, mouseY;
+        const int buttons = SDL_GetMouseState(&mouseX, &mouseY);
+
+        io.MousePos = ImVec2(mouseX, mouseY);
+        io.MouseDown[0] = buttons & SDL_BUTTON(SDL_BUTTON_LEFT);
+        io.MouseDown[1] = buttons & SDL_BUTTON(SDL_BUTTON_RIGHT);
+
+        // game input 처리
         switch (event.type) {
             case SDL_QUIT:
                 _isRunning = false;
@@ -246,6 +269,11 @@ void Game::Render() {
     _registry->GetSystem<RenderSystem>().Update(_renderer, _assetManager, _camera);
     _registry->GetSystem<RenderTextSystem>().Update(_renderer, _assetManager, _camera);
     _registry->GetSystem<DebugRenderSystem>().Update(_renderer, _camera);
+
+    ImGui::NewFrame();
+    ImGui::ShowDemoWindow();
+    ImGui::Render();
+    ImGuiSDL::Render(ImGui::GetDrawData());
 
     SDL_RenderPresent(_renderer);
 }
