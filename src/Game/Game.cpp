@@ -17,6 +17,7 @@
 #include "../Systems/ProjectileLifeCycleSystem.h"
 #include "../Systems/RenderTextSystem.h"
 #include "../Systems/HealthUISystem.h"
+#include "../Systems/RenderGUISystem.h"
 
 #include <iostream>
 #include <fstream>
@@ -116,6 +117,7 @@ void Game::Setup() {
     _registry->AddSystem<ProjectileLifeCycleSystem>();
     _registry->AddSystem<RenderTextSystem>();
     _registry->AddSystem<HealthUISystem>();
+    _registry->AddSystem<RenderGUISystem>();
 
     _assetManager->AddTexture(_renderer, "tank_image", "./assets/images/tank-tiger-right.png");
     _assetManager->AddTexture(_renderer, "truck_image", "./assets/images/truck-ford-right.png");
@@ -270,10 +272,7 @@ void Game::Render() {
     _registry->GetSystem<RenderTextSystem>().Update(_renderer, _assetManager, _camera);
     _registry->GetSystem<DebugRenderSystem>().Update(_renderer, _camera);
 
-    ImGui::NewFrame();
-    ImGui::ShowDemoWindow();
-    ImGui::Render();
-    ImGuiSDL::Render(ImGui::GetDrawData());
+    _registry->GetSystem<RenderGUISystem>().Update(_registry);
 
     SDL_RenderPresent(_renderer);
 }
