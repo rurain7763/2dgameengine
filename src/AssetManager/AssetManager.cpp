@@ -9,7 +9,6 @@ AssetManager::AssetManager() {
 }
 
 AssetManager::~AssetManager() {
-    ClearAssets();
     LOG("Asset manager was destroyed");
 }
 
@@ -23,7 +22,9 @@ void AssetManager::AddTexture(SDL_Renderer* renderer, const std::string& assetID
 }
 
 SDL_Texture* AssetManager::GetTexture(const std::string& assetID) const {
-    return _textures.at(assetID);
+    auto pair = _textures.find(assetID);
+    if(pair == _textures.end()) return nullptr;
+    else return pair->second;
 }
 
 void AssetManager::AddFont(const std::string& assetID, const std::string& filePath, int fontSize) {
@@ -32,7 +33,9 @@ void AssetManager::AddFont(const std::string& assetID, const std::string& filePa
 }
 
 TTF_Font* AssetManager::GetFont(const std::string& assetID) const {
-    return _fonts.at(assetID);
+    auto pair = _fonts.find(assetID);
+    if(pair == _fonts.end()) return nullptr;
+    else return pair->second;
 }
 
 void AssetManager::ClearAssets() {

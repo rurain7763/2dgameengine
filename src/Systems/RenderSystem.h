@@ -51,15 +51,23 @@ public:
                 static_cast<int>(sprite.height * transform.scale.y)
             };
 
-            SDL_RenderCopyEx(
-                renderer, 
-                assetManager->GetTexture(sprite.assetID),
-                &srcRt,
-                &dstRt,
-                transform.rotation,
-                NULL,
-                SDL_FLIP_NONE
-            );
+            SDL_Texture* texture = assetManager->GetTexture(sprite.assetID);
+
+            if(texture) {
+                SDL_SetTextureColorMod(texture, sprite.color.r, sprite.color.g, sprite.color.b);
+                SDL_RenderCopyEx(
+                    renderer, 
+                    texture,    
+                    &srcRt,
+                    &dstRt,
+                    transform.rotation,
+                    NULL,
+                    SDL_FLIP_NONE
+                );
+            } else { 
+                SDL_SetRenderDrawColor(renderer, sprite.color.r, sprite.color.g, sprite.color.b, 255);
+                SDL_RenderFillRect(renderer, &dstRt);
+            }
         }
     }
 };

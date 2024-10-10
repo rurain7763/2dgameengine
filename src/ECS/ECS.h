@@ -16,9 +16,11 @@ typedef std::bitset<MAX_COMPONENTS> Signature;
 
 class Entity {
 public:
+    Entity() : _registry(nullptr), _id(-1) {}
     Entity(class Registry* registry, int id) : _registry(registry), _id(id) {}
     Entity(const Entity& other) = default;
 
+    inline bool IsValid() const { return _id != -1; }
     inline int GetID() const { return _id; }
 
     template<typename T, typename ...TArgs> void AddComponent(TArgs&& ...args) const;

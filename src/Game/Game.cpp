@@ -12,6 +12,7 @@
 #include "../Systems/ProjectileEmitSystem.h"
 #include "../Systems/ProjectileLifeCycleSystem.h"
 #include "../Systems/RenderTextSystem.h"
+#include "../Systems/HealthUISystem.h"
 
 #include <iostream>
 #include <fstream>
@@ -83,8 +84,11 @@ void Game::Run() {
 }
 
 void Game::Destroy() {
+    _assetManager->ClearAssets();
+
     SDL_DestroyRenderer(_renderer);
     SDL_DestroyWindow(_window);
+    TTF_Quit();
     SDL_Quit();
 }
 
@@ -100,6 +104,7 @@ void Game::Setup() {
     _registry->AddSystem<ProjectileEmitSystem>();
     _registry->AddSystem<ProjectileLifeCycleSystem>();
     _registry->AddSystem<RenderTextSystem>();
+    _registry->AddSystem<HealthUISystem>();
 
     _assetManager->AddTexture(_renderer, "tank_image", "./assets/images/tank-tiger-right.png");
     _assetManager->AddTexture(_renderer, "truck_image", "./assets/images/truck-ford-right.png");
@@ -118,6 +123,7 @@ void Game::Setup() {
     tank.AddComponent<DebugRenderComponent>(true);
     tank.AddComponent<ProjectileEmitterComponent>(glm::vec2(100, 0), 2000, 2000);
     tank.AddComponent<HealthComponent>();
+    tank.AddComponent<HealthUIComponent>(glm::vec2(32, 0));
 
     Entity truck = _registry->CreateEntity();
     truck.Group("enemies");
@@ -128,6 +134,7 @@ void Game::Setup() {
     truck.AddComponent<DebugRenderComponent>(true);
     truck.AddComponent<ProjectileEmitterComponent>(glm::vec2(0, 100), 3000, 3000);
     truck.AddComponent<HealthComponent>();
+    truck.AddComponent<HealthUIComponent>(glm::vec2(32, 0));
 
     Entity chopper = _registry->CreateEntity();
     chopper.Tag("player");
@@ -141,6 +148,7 @@ void Game::Setup() {
     chopper.AddComponent<CameraFollowComponent>();
     chopper.AddComponent<ProjectileEmitterComponent>(glm::vec2(1000, 1000), 0, 10000, 10, true);
     chopper.AddComponent<HealthComponent>();
+    chopper.AddComponent<HealthUIComponent>(glm::vec2(32, 0));
 
     Entity radar = _registry->CreateEntity();
     radar.AddComponent<TransformComponent>(glm::vec2(_windowWidth - 74, _windowHeight - 74), glm::vec2(1, 1), 0);
@@ -148,8 +156,8 @@ void Game::Setup() {
     radar.AddComponent<AnimationComponent>(8, 3, true);
 
     Entity label = _registry->CreateEntity();
-    label.AddComponent<TransformComponent>(glm::vec2(_windowWidth / 2, _windowHeight / 2), glm::vec2(1, 1), 0);
-    label.AddComponent<TextLabelComponent>("hello world!!!!", "charriot_font", SDL_Color{0, 255, 0}, true);
+    label.AddComponent<TransformComponent>(glm::vec2(_windowWidth / 2 - 40, 10), glm::vec2(1, 1), 0);
+    label.AddComponent<TextLabelComponent>("chopper 1.0", "charriot_font", SDL_Color{0, 255, 0}, true);
 
     std::fstream file("./assets/tilemaps/jungle.map");
     const float tileSize = 32.f;
@@ -223,6 +231,8 @@ void Game::Update() {
     _registry->GetSystem<AnimationSystem>().Update();
     _registry->GetSystem<ProjectileLifeCycleSystem>().Update();
     _registry->GetSystem<ProjectileEmitSystem>().Update(_registry);
+    _registry->GetSystem<HealthUISystem>().Update(_registry, _renderer);
+
     _registry->GetSystem<CameraMovementSystem>().Update(_camera, _mapSize);
 
     // 레지스트리 업데이트(실제로 entity 생성 및 삭제가 일어남)
