@@ -11,6 +11,7 @@
 #include "../Systems/CameraMovementSystem.h"
 #include "../Systems/ProjectileEmitSystem.h"
 #include "../Systems/ProjectileLifeCycleSystem.h"
+#include "../Systems/RenderTextSystem.h"
 
 #include <iostream>
 #include <fstream>
@@ -29,7 +30,12 @@ Game::~Game() {
 
 void Game::Init() {
     if(SDL_Init(SDL_INIT_EVERYTHING) != 0) {
-        Logger::Err("Error init SDL");
+        Logger::Err("error init SDL");
+        return;
+    }
+
+    if(TTF_Init() != 0) {
+        Logger::Err("error init TTF");
         return;
     }
 
@@ -93,6 +99,7 @@ void Game::Setup() {
     _registry->AddSystem<CameraMovementSystem>();
     _registry->AddSystem<ProjectileEmitSystem>();
     _registry->AddSystem<ProjectileLifeCycleSystem>();
+    _registry->AddSystem<RenderTextSystem>();
 
     _assetManager->AddTexture(_renderer, "tank_image", "./assets/images/tank-tiger-right.png");
     _assetManager->AddTexture(_renderer, "truck_image", "./assets/images/truck-ford-right.png");
@@ -100,6 +107,7 @@ void Game::Setup() {
     _assetManager->AddTexture(_renderer, "radar_image", "./assets/images/radar.png");
     _assetManager->AddTexture(_renderer, "jungle_map", "./assets/tilemaps/jungle.png");
     _assetManager->AddTexture(_renderer, "bullet_image", "./assets/images/bullet.png");
+    _assetManager->AddFont("charriot_font", "./assets/fonts/charriot.ttf", 20);
 
     Entity tank = _registry->CreateEntity();
     tank.Group("enemies");
@@ -138,6 +146,10 @@ void Game::Setup() {
     radar.AddComponent<TransformComponent>(glm::vec2(_windowWidth - 74, _windowHeight - 74), glm::vec2(1, 1), 0);
     radar.AddComponent<SpriteComponent>("radar_image", 64, 64, 3, 0, 0, true);
     radar.AddComponent<AnimationComponent>(8, 3, true);
+
+    Entity label = _registry->CreateEntity();
+    label.AddComponent<TransformComponent>(glm::vec2(_windowWidth / 2, _windowHeight / 2), glm::vec2(1, 1), 0);
+    label.AddComponent<TextLabelComponent>("hello world!!!!", "charriot_font", SDL_Color{0, 255, 0}, true);
 
     std::fstream file("./assets/tilemaps/jungle.map");
     const float tileSize = 32.f;
@@ -222,6 +234,7 @@ void Game::Render() {
     SDL_RenderClear(_renderer);
 
     _registry->GetSystem<RenderSystem>().Update(_renderer, _assetManager, _camera);
+    _registry->GetSystem<RenderTextSystem>().Update(_renderer, _assetManager, _camera);
     _registry->GetSystem<DebugRenderSystem>().Update(_renderer, _camera);
 
     SDL_RenderPresent(_renderer);

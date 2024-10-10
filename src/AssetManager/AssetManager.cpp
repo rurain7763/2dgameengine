@@ -26,9 +26,23 @@ SDL_Texture* AssetManager::GetTexture(const std::string& assetID) const {
     return _textures.at(assetID);
 }
 
+void AssetManager::AddFont(const std::string& assetID, const std::string& filePath, int fontSize) {
+    TTF_Font* font = TTF_OpenFont(filePath.c_str(), fontSize);
+    _fonts.emplace(assetID, font);
+}
+
+TTF_Font* AssetManager::GetFont(const std::string& assetID) const {
+    return _fonts.at(assetID);
+}
+
 void AssetManager::ClearAssets() {
-    for(auto& pair : _textures) {
+    for(auto pair : _textures) {
         SDL_DestroyTexture(pair.second);
     }
     _textures.clear();
+
+    for(auto pair : _fonts) {
+        TTF_CloseFont(pair.second);
+    }
+    _fonts.clear();
 }

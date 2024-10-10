@@ -32,8 +32,6 @@ public:
         } else if(b.BelongsToGroup("enemies") && a.BelongsToGroup("projectiles")) {
             OnProjectileHitEnemy(b, a);
         }
-
-        LOG("damage system recieved %d entity and %d entity are collided!", a.GetID(), b.GetID());
     }
 
     void OnProjectileHitPlayer(Entity& player, Entity& projectile) {

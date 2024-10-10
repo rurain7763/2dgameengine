@@ -8,7 +8,7 @@ SRC_FILES = ./src/*.cpp \
 			./src/ECS/*.cpp \
 			./src/AssetManager/*.cpp
 LIB_PATH = -L/opt/homebrew/lib
-LIBS = -lSDL2 -lSDL2_image -lglm
+LIBS = -lSDL2 -lSDL2_image -lSDL2_ttf -lglm
 PROJECT = engine
 
 build:

@@ -173,7 +173,9 @@ void Registry::Update() {
         RemoveEntityFromSystem(entity);
 
         for(auto& pool : _componentPools) {
-            pool->Remove(entityID);
+            if(pool) {
+                pool->Remove(entityID);
+            }
         }
 
         _entityComponentSigs[entityID].reset();
