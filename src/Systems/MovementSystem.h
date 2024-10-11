@@ -2,6 +2,7 @@
 #define MOVEMENTSYSTEM_H
 
 #include "../ECS/ECS.h"
+#include "../EventBus/EventBus.h"
 #include "../Components/TransformComponent.h"
 #include "../Components/RigidBodyComponent.h"
 #include "../Components/SpriteComponent.h"
@@ -65,11 +66,13 @@ public:
                 transform.position.x = glm::clamp(transform.position.x, 0.f, mapSize.x - sprite.width * transform.scale.x);
                 transform.position.y = glm::clamp(transform.position.y, 0.f, mapSize.y - sprite.height * transform.scale.y);
             } else {
+                const float margin = 100;
+
                 bool isEntityOutSideTheMap = 
-                    transform.position.x < 0 ||
-                    transform.position.x > mapSize.x ||
-                    transform.position.y < 0 ||
-                    transform.position.y > mapSize.y;
+                    transform.position.x < -margin ||
+                    transform.position.x > mapSize.x + margin ||
+                    transform.position.y < -margin ||
+                    transform.position.y > mapSize.y + margin;
 
                 if(isEntityOutSideTheMap) {
                     entity.Kill();
