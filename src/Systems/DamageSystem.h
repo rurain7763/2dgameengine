@@ -38,8 +38,8 @@ public:
         auto& projectileComponent = projectile.GetComponent<ProjectileComponent>();
         if(!projectileComponent.isFriendly) {
             auto& health = player.GetComponent<HealthComponent>();
-            health.healthPercentage -= projectileComponent.percentDamage;
-            if(health.healthPercentage <= 0) {
+            health.curHealthPercentage -= projectileComponent.percentDamage;
+            if(health.curHealthPercentage <= 0) {
                 player.Kill();
             }
             projectile.Kill();
@@ -50,8 +50,8 @@ public:
         auto& projectileComponent = projectile.GetComponent<ProjectileComponent>();
         if(projectileComponent.isFriendly) {
             auto& health = enemy.GetComponent<HealthComponent>();
-            health.healthPercentage -= projectileComponent.percentDamage;
-            if(health.healthPercentage <= 0) {
+            health.curHealthPercentage -= projectileComponent.percentDamage;
+            if(health.curHealthPercentage <= 0) {
                 enemy.Kill();
             }
             projectile.Kill();

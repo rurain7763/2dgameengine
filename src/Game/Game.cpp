@@ -119,7 +119,8 @@ void Game::Setup() {
     _registry->AddSystem<HealthUISystem>();
     _registry->AddSystem<RenderGUISystem>();
 
-    _assetManager->AddTexture(_renderer, "tank_image", "./assets/images/tank-tiger-right.png");
+    _assetManager->AddTexture(_renderer, "tank_image_right", "./assets/images/tank-tiger-right.png");
+    _assetManager->AddTexture(_renderer, "tank_image_left", "./assets/images/tank-tiger-left.png");
     _assetManager->AddTexture(_renderer, "truck_image", "./assets/images/truck-ford-right.png");
     _assetManager->AddTexture(_renderer, "chopper_spritesheet", "./assets/images/chopper-spritesheet.png");
     _assetManager->AddTexture(_renderer, "radar_image", "./assets/images/radar.png");
@@ -131,7 +132,7 @@ void Game::Setup() {
     tank.Group("enemies");
     tank.AddComponent<TransformComponent>(glm::vec2(10, 30), glm::vec2(1, 1), 0);
     tank.AddComponent<RigidBodyComponent>(glm::vec2(0, 0));
-    tank.AddComponent<SpriteComponent>("tank_image", 32, 32, 2);
+    tank.AddComponent<SpriteComponent>("tank_image_right", 32, 32, 2);
     tank.AddComponent<BoxColliderComponent>(32, 32);
     tank.AddComponent<DebugRenderComponent>(true);
     tank.AddComponent<ProjectileEmitterComponent>(glm::vec2(100, 0), 2000, 2000);
@@ -272,7 +273,7 @@ void Game::Render() {
     _registry->GetSystem<RenderTextSystem>().Update(_renderer, _assetManager, _camera);
     _registry->GetSystem<DebugRenderSystem>().Update(_renderer, _camera);
 
-    _registry->GetSystem<RenderGUISystem>().Update(_registry);
+    _registry->GetSystem<RenderGUISystem>().Update(_registry, _assetManager, _camera);
 
     SDL_RenderPresent(_renderer);
 }

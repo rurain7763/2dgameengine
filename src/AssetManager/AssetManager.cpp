@@ -27,6 +27,14 @@ SDL_Texture* AssetManager::GetTexture(const std::string& assetID) const {
     else return pair->second;
 }
 
+std::vector<const char*> AssetManager::GetTextureAssetIDs() const {
+    std::vector<const char*> ret;
+    for(const auto& pair : _textures) {
+        ret.push_back(pair.first.c_str());
+    }
+    return ret;
+}
+
 void AssetManager::AddFont(const std::string& assetID, const std::string& filePath, int fontSize) {
     TTF_Font* font = TTF_OpenFont(filePath.c_str(), fontSize);
     _fonts.emplace(assetID, font);

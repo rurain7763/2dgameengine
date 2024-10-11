@@ -25,9 +25,9 @@ public:
             auto& healthUI = entity.GetComponent<HealthUIComponent>();
 
             int hpLvColor = 0;
-            if(health.healthPercentage > 70) {
+            if(health.curHealthPercentage > 70) {
                 hpLvColor = 2;
-            } else if (health.healthPercentage > 30) {
+            } else if (health.curHealthPercentage > 30) {
                 hpLvColor = 1;
             }
 
@@ -42,7 +42,7 @@ public:
 
             hpTxtTransform.position = transform.position + healthUI.offset;
 
-            hpTxtLabel.text = std::to_string(health.healthPercentage);
+            hpTxtLabel.text = std::to_string(health.curHealthPercentage);
             hpTxtLabel.color = HP_LV_COLOR[hpLvColor];
 
             if(!healthUI.hpBar.IsValid()) {
@@ -55,10 +55,10 @@ public:
             auto& hpBarSprite = healthUI.hpBar.GetComponent<SpriteComponent>();
 
             hpBarTransform.position = transform.position + glm::vec2(healthUI.offset.x, healthUI.offset.y + 10);
-            hpBarSprite.width = static_cast<int>(MAX_BAR_SIZE.x / 100.f * health.healthPercentage);
+            hpBarSprite.width = static_cast<int>(MAX_BAR_SIZE.x / health.maxHealthPercentage * health.curHealthPercentage);
             hpBarSprite.color = HP_LV_COLOR[hpLvColor];
 
-            if(health.healthPercentage <= 0) {
+            if(health.curHealthPercentage <= 0) {
                 healthUI.hpTxt.Kill();
                 healthUI.hpBar.Kill();
             }
