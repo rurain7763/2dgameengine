@@ -19,10 +19,17 @@ struct LogEntry {
 class Logger {
 private:
     static std::vector<LogEntry> _logs;
+    static std::vector<LogEntry> _newLogs;
     
 public:
     static void Log(const std::string& message);
     static void Err(const std::string& message);
+
+    static bool IsDirty();
+    static const std::vector<LogEntry>& GetNewLogs();
+    static void ClearNewLogs();
+
+    static const std::vector<LogEntry>& GetLogs();
 };
 
 #define LOG(fmt, ...) \
@@ -31,7 +38,7 @@ public:
         std::string dateStr(30, 0); \
         std::strftime(&dateStr[0], dateStr.size(), "%Y-%m-%d %H:%M:%S", std::localtime(&now)); \
         char buffer[256]; \
-        snprintf(buffer, sizeof(buffer), "%s [%s: %d][%s] " fmt, \
+        snprintf(buffer, sizeof(buffer), "%s [%s: %d][%s][Info] " fmt, \
         dateStr.c_str(), __FILE__, __LINE__, __func__, ##__VA_ARGS__); \
         Logger::Log(buffer); \
     }
@@ -42,7 +49,7 @@ public:
         std::string dateStr(30, 0); \
         std::strftime(&dateStr[0], dateStr.size(), "%Y-%m-%d %H:%M:%S", std::localtime(&now)); \
         char buffer[256]; \
-        snprintf(buffer, sizeof(buffer), "[%s: %d][%s] " fmt, \
+        snprintf(buffer, sizeof(buffer), "[%s: %d][%s][Error] " fmt, \
         __FILE__, __LINE__, __func__, ##__VA_ARGS__); \
         Logger::Err(buffer); \
     }
