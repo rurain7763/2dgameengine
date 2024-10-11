@@ -22,12 +22,24 @@ public:
 
         std::vector<Entry> sortedEntities;
         for(auto& entity : GetEntities()) {
-            Entry entry = {
-                .transform = &entity.GetComponent<TransformComponent>(),
-                .sprite = &entity.GetComponent<SpriteComponent>()
-            };
-            sortedEntities.push_back(entry);
+            auto& transform = entity.GetComponent<TransformComponent>();
+            auto& sprite = entity.GetComponent<SpriteComponent>();
+
+            // 카메라 밖을 벗어나면 그리지 않겠다.
+            if( sprite.isFixed ||
+                (transform.position.x + sprite.width * transform.scale.x >= camera.x &&
+                transform.position.x <= camera.x + camera.w &&
+                transform.position.y + sprite.height * transform.scale.y >= camera.y &&
+                transform.position.y <= camera.y + camera.h))
+            {
+                Entry entry = {
+                    .transform = &transform,
+                    .sprite = &sprite
+                };
+                sortedEntities.push_back(entry);
+            }
         }
+
         std::sort(sortedEntities.begin(), sortedEntities.end(), [](const Entry& a, const Entry& b) { 
             return a.sprite->zIndex < b.sprite->zIndex; 
         });
