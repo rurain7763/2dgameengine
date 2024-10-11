@@ -11,6 +11,7 @@ public:
     int srcRectX, srcRectY;
     bool isFixed;
     int zIndex;
+    SDL_RendererFlip flip;
     SDL_Color color;
 
     SpriteComponent(
@@ -31,6 +32,7 @@ public:
         this->srcRectY = srcRectY;
         this->isFixed = isFixed;
         this->color = color;
+        flip = SDL_FLIP_NONE;
     }
 };
 

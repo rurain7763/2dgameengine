@@ -62,7 +62,7 @@ public:
                     &dstRt,
                     transform.rotation,
                     NULL,
-                    SDL_FLIP_NONE
+                    sprite.flip
                 );
             } else { 
                 SDL_SetRenderDrawColor(renderer, sprite.color.r, sprite.color.g, sprite.color.b, 255);

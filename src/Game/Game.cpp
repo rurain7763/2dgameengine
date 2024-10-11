@@ -48,8 +48,8 @@ void Game::Init() {
 
     SDL_DisplayMode displayMod;
     SDL_GetCurrentDisplayMode(0, &displayMod);
-    _windowWidth = displayMod.w / 2;
-    _windowHeight = displayMod.h / 2;
+    _windowWidth = displayMod.w;
+    _windowHeight = displayMod.h;
 
     _window = SDL_CreateWindow(
         nullptr,
@@ -70,7 +70,7 @@ void Game::Init() {
         return;
     }
     
-    //SDL_SetWindowFullscreen(_window, SDL_WINDOW_FULLSCREEN);
+    SDL_SetWindowFullscreen(_window, SDL_WINDOW_FULLSCREEN);
 
     // imgui 초기화
     ImGui::CreateContext();
@@ -126,11 +126,12 @@ void Game::Setup() {
     _assetManager->AddTexture(_renderer, "radar_image", "./assets/images/radar.png");
     _assetManager->AddTexture(_renderer, "jungle_map", "./assets/tilemaps/jungle.png");
     _assetManager->AddTexture(_renderer, "bullet_image", "./assets/images/bullet.png");
+    _assetManager->AddTexture(_renderer, "tree_image", "./assets/images/tree.png");
     _assetManager->AddFont("charriot_font", "./assets/fonts/charriot.ttf", 20);
 
     Entity tank = _registry->CreateEntity();
     tank.Group("enemies");
-    tank.AddComponent<TransformComponent>(glm::vec2(10, 30), glm::vec2(1, 1), 0);
+    tank.AddComponent<TransformComponent>(glm::vec2(400, 620), glm::vec2(1, 1), 0);
     tank.AddComponent<RigidBodyComponent>(glm::vec2(0, 0));
     tank.AddComponent<SpriteComponent>("tank_image_right", 32, 32, 2);
     tank.AddComponent<BoxColliderComponent>(32, 32);
@@ -141,8 +142,8 @@ void Game::Setup() {
 
     Entity truck = _registry->CreateEntity();
     truck.Group("enemies");
-    truck.AddComponent<TransformComponent>(glm::vec2(200, 30), glm::vec2(1, 1), 0);
-    truck.AddComponent<RigidBodyComponent>(glm::vec2(0, 0));
+    truck.AddComponent<TransformComponent>(glm::vec2(540, 620), glm::vec2(1, 1), 0);
+    truck.AddComponent<RigidBodyComponent>(glm::vec2(100, 0));
     truck.AddComponent<SpriteComponent>("truck_image", 32, 32, 1);
     truck.AddComponent<BoxColliderComponent>(32, 32);
     truck.AddComponent<DebugRenderComponent>(true);
@@ -164,6 +165,18 @@ void Game::Setup() {
     chopper.AddComponent<HealthComponent>();
     chopper.AddComponent<HealthUIComponent>(glm::vec2(32, 0));
 
+    Entity treeA = _registry->CreateEntity();
+    treeA.Group("obstacles");
+    treeA.AddComponent<TransformComponent>(glm::vec2(720, 620), glm::vec2(1, 1), 0);
+    treeA.AddComponent<SpriteComponent>("tree_image", 16, 32, 3);
+    treeA.AddComponent<BoxColliderComponent>(16, 32);
+
+    Entity treeB = _registry->CreateEntity();
+    treeB.Group("obstacles");
+    treeB.AddComponent<TransformComponent>(glm::vec2(530, 620), glm::vec2(1, 1), 0);
+    treeB.AddComponent<SpriteComponent>("tree_image", 16, 32, 3);
+    treeB.AddComponent<BoxColliderComponent>(16, 32);
+
     Entity radar = _registry->CreateEntity();
     radar.AddComponent<TransformComponent>(glm::vec2(_windowWidth - 74, _windowHeight - 74), glm::vec2(1, 1), 0);
     radar.AddComponent<SpriteComponent>("radar_image", 64, 64, 3, 0, 0, true);
@@ -175,7 +188,7 @@ void Game::Setup() {
 
     std::fstream file("./assets/tilemaps/jungle.map");
     const float tileSize = 32.f;
-    const float tileScale = 2.f;
+    const float tileScale = 2.5f;
     const int numMapStride = 10;
     int x = 0, y = 0;
     std::string line;
@@ -248,11 +261,12 @@ void Game::Update() {
     _prevFrameMilliSecs = SDL_GetTicks();
 
     _eventBus->Reset();
+    _registry->GetSystem<MovementSystem>().SubscribeToEvents(_eventBus);
     _registry->GetSystem<DamageSystem>().SubscribeToEvents(_eventBus);
     _registry->GetSystem<KeyboardMovementSystem>().SubscribeToEvents(_eventBus);
     _registry->GetSystem<ProjectileEmitSystem>().SubscribeToEvents(_eventBus);
 
-    _registry->GetSystem<MovementSystem>().Update(deltaTime);
+    _registry->GetSystem<MovementSystem>().Update(deltaTime, _mapSize);
     _registry->GetSystem<CollisionSystem>().Update(_eventBus);
     _registry->GetSystem<AnimationSystem>().Update();
     _registry->GetSystem<ProjectileLifeCycleSystem>().Update();
