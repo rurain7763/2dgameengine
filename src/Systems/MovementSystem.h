@@ -60,6 +60,7 @@ public:
             auto& rigidbody = entity.GetComponent<RigidBodyComponent>();
 
             transform.position += rigidbody.velocity * deltaTime;
+            transform.forward = glm::normalize(rigidbody.velocity);
 
             if(entity.HasTag("player")) {
                 auto& sprite = entity.GetComponent<SpriteComponent>();

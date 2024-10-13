@@ -33,8 +33,8 @@ public:
 
             if(!healthUI.hpTxt.IsValid()) {
                 healthUI.hpTxt = registry->CreateEntity();
-                healthUI.hpTxt.AddComponent<TransformComponent>(glm::vec2(0, 0), glm::vec2(0.5, 0.5), 0);
-                healthUI.hpTxt.AddComponent<TextLabelComponent>("0%", "charriot_font", SDL_Color{255, 0, 0}, false);
+                healthUI.hpTxt.AddComponent<TransformComponent>(glm::vec2(0, 0), glm::vec2(1, 1), 0);
+                healthUI.hpTxt.AddComponent<TextLabelComponent>("0%", "pico8-font-10", SDL_Color{255, 0, 0}, false);
             }
 
             auto& hpTxtTransform = healthUI.hpTxt.GetComponent<TransformComponent>();
@@ -54,7 +54,7 @@ public:
             auto& hpBarTransform = healthUI.hpBar.GetComponent<TransformComponent>();
             auto& hpBarSprite = healthUI.hpBar.GetComponent<SpriteComponent>();
 
-            hpBarTransform.position = transform.position + glm::vec2(healthUI.offset.x, healthUI.offset.y + 10);
+            hpBarTransform.position = transform.position + glm::vec2(healthUI.offset.x, healthUI.offset.y + 20);
             hpBarSprite.width = static_cast<int>(MAX_BAR_SIZE.x / health.maxHealthPercentage * health.curHealthPercentage);
             hpBarSprite.color = HP_LV_COLOR[hpLvColor];
 
