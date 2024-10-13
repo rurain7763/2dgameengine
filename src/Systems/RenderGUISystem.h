@@ -17,6 +17,7 @@
 #include "../../libs/imgui/imgui_impl_sdl.h"
 
 #define RAD2DEG(x) (180 / M_PI * x)
+#define DEG2RAD(x) (M_PI / 180 * x)
 
 struct AppLog {
     std::vector<ImVec4> Col;
@@ -128,10 +129,34 @@ class RenderGUISystem : public System {
 public:
     RenderGUISystem() = default;
 
-    void Update(std::unique_ptr<Registry>& registry, std::unique_ptr<AssetManager>& assetMg, const SDL_Rect& camera) {
+    void Update(std::unique_ptr<Registry>& registry, std::unique_ptr<AssetManager>& assetMg, const SDL_Rect& camera, SDL_Texture* gameTex) {
         ImGui::NewFrame();
 
         ImGuiWindowFlags windowFlags = 0;
+
+        if(ImGui::Begin("Game", NULL, windowFlags)) {
+            ImVec2 viewportSize = ImGui::GetContentRegionAvail();
+
+            int textureWidth, textureHeight;
+            SDL_QueryTexture(gameTex, NULL, NULL, &textureWidth, &textureHeight);
+
+            float imageAspectRatio = (float)textureWidth / textureHeight;
+            float contentRegionAspectRatio = viewportSize.x / viewportSize.y;
+
+            if (contentRegionAspectRatio > imageAspectRatio) {
+                float imageWidth = viewportSize.y * imageAspectRatio;
+                float xPadding = (viewportSize.x - imageWidth) / 2;
+                ImGui::SetCursorPosX(ImGui::GetCursorPosX() + xPadding);
+                ImGui::Image(gameTex, ImVec2(imageWidth, viewportSize.y));
+            } else {
+                float imageHeight = viewportSize.x / imageAspectRatio;
+                float yPadding = (viewportSize.y - imageHeight) / 2;
+                ImGui::SetCursorPosY(ImGui::GetCursorPosY() + yPadding);
+                ImGui::Image(gameTex, ImVec2(viewportSize.x, imageHeight));
+            }
+        }
+        ImGui::End();
+
         if(ImGui::Begin("Spawn ememies", NULL, windowFlags)) {
             static int positions[] = {0, 0};
             static float size[] = {1, 1};
@@ -177,21 +202,6 @@ public:
                 enemy.AddComponent<HealthComponent>(healthPercentage);
                 enemy.AddComponent<HealthUIComponent>(glm::vec2(32, 0));
             }
-        }
-        ImGui::End();
-
-        windowFlags = 
-            ImGuiWindowFlags_NoDecoration | 
-            ImGuiWindowFlags_NoMove | 
-            ImGuiWindowFlags_NoCollapse |
-            ImGuiWindowFlags_NoNav |
-            ImGuiWindowFlags_NoInputs |
-            ImGuiWindowFlags_AlwaysAutoResize;
-        ImGui::SetNextWindowPos(ImVec2(10, 10), ImGuiCond_Always);
-        ImGui::SetNextWindowBgAlpha(0.9f);
-        if(ImGui::Begin("Map coordinates", NULL, windowFlags)) {
-            ImGuiIO io = ImGui::GetIO();
-            ImGui::Text("Map coordinates x : %.1f y : %.1f", io.MousePos.x + camera.x, io.MousePos.y + camera.y);
         }
         ImGui::End();
 

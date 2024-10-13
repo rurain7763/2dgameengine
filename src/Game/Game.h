@@ -4,6 +4,7 @@
 #include "../ECS/ECS.h"
 #include "../AssetManager/AssetManager.h"
 #include "../EventBus/EventBus.h"
+#include "../../libs/sol/sol.hpp"
 
 #include <SDL2/SDL.h>
 #include <glm/glm.hpp>
@@ -29,6 +30,9 @@ private:
 private:
     SDL_Window* _window;
     SDL_Renderer* _renderer;
+    SDL_Texture* _gameTexure;
+    SDL_Texture* _engineTexture;
+
     SDL_Rect _camera;
     glm::vec2 _mapSize;
 
@@ -40,6 +44,8 @@ private:
     std::unique_ptr<Registry> _registry;
     std::unique_ptr<AssetManager> _assetManager;
     std::unique_ptr<EventBus> _eventBus;
+
+    sol::state _lua;
 };
 
 #endif

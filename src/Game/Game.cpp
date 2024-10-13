@@ -62,17 +62,20 @@ void Game::Init() {
         return;
     }
 
-    _renderer = SDL_CreateRenderer(_window, -1, 0);
+    _renderer = SDL_CreateRenderer(_window, -1, SDL_RENDERER_TARGETTEXTURE);
     if(!_renderer) {
         Logger::Err("Error creating renderer");
         return;
     }
-    
+
     SDL_SetWindowFullscreen(_window, SDL_WINDOW_FULLSCREEN);
 
     // imgui 초기화
     ImGui::CreateContext();
     ImGuiSDL::Initialize(_renderer, _windowWidth, _windowHeight);
+
+    _gameTexure = SDL_CreateTexture(_renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, _windowWidth, _windowHeight);
+    _engineTexture = SDL_CreateTexture(_renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, _windowWidth, _windowHeight);
 
     _camera.x = 0;
     _camera.y = 0;
@@ -94,8 +97,12 @@ void Game::Run() {
 void Game::Destroy() {
     _assetManager->ClearAssets();
 
+    SDL_DestroyTexture(_gameTexure);
+    SDL_DestroyTexture(_engineTexture);
+
     ImGuiSDL::Deinitialize();
     ImGui::DestroyContext();
+
     SDL_DestroyRenderer(_renderer);
     SDL_DestroyWindow(_window);
     TTF_Quit();
@@ -117,8 +124,10 @@ void Game::Setup() {
     _registry->AddSystem<HealthUISystem>();
     _registry->AddSystem<RenderGUISystem>();
 
+    _lua.open_libraries(sol::lib::base, sol::lib::math);
+
     LevelLoader loader;
-    glm::vec2 mapSize = loader.LoadLevel(_registry, _assetManager, _renderer, _windowWidth, _windowHeight, 1);
+    glm::vec2 mapSize = loader.LoadLevel(_lua, _registry, _assetManager, _renderer, _windowWidth, _windowHeight, 1);
     _mapSize = mapSize;
 }
 
@@ -179,6 +188,8 @@ void Game::Update() {
 }
 
 void Game::Render() {
+    SDL_SetRenderTarget(_renderer, _gameTexure);
+
     SDL_SetRenderDrawColor(_renderer, 0, 0, 0, 0);
     SDL_RenderClear(_renderer);
 
@@ -186,7 +197,16 @@ void Game::Render() {
     _registry->GetSystem<RenderTextSystem>().Update(_renderer, _assetManager, _camera);
     _registry->GetSystem<DebugRenderSystem>().Update(_renderer, _camera);
 
-    _registry->GetSystem<RenderGUISystem>().Update(_registry, _assetManager, _camera);
+    SDL_SetRenderTarget(_renderer, _engineTexture);
 
+    SDL_SetRenderDrawColor(_renderer, 0, 0, 0, 0);
+    SDL_RenderClear(_renderer);
+
+    _registry->GetSystem<RenderGUISystem>().Update(_registry, _assetManager, _camera, _gameTexure);
+
+    SDL_SetRenderTarget(_renderer, nullptr);
+    SDL_RenderCopy(_renderer, _engineTexture, nullptr, nullptr);
     SDL_RenderPresent(_renderer);
 }
+
+
