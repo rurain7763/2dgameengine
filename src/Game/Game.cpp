@@ -19,6 +19,7 @@
 #include "../Systems/RenderTextSystem.h"
 #include "../Systems/HealthUISystem.h"
 #include "../Systems/RenderGUISystem.h"
+#include "../Systems/ScriptSystem.h"
 
 Game::Game() 
     : _prevFrameMilliSecs(0)
@@ -95,6 +96,7 @@ void Game::Run() {
 }
 
 void Game::Destroy() {
+    _registry->Clear();
     _assetManager->ClearAssets();
 
     SDL_DestroyTexture(_gameTexure);
@@ -123,8 +125,10 @@ void Game::Setup() {
     _registry->AddSystem<RenderTextSystem>();
     _registry->AddSystem<HealthUISystem>();
     _registry->AddSystem<RenderGUISystem>();
+    _registry->AddSystem<ScriptSystem>();
 
-    _lua.open_libraries(sol::lib::base, sol::lib::math);
+    _lua.open_libraries(sol::lib::base, sol::lib::math, sol::lib::os);
+    _lua["log_info"] = Logger::Log;
 
     LevelLoader loader;
     glm::vec2 mapSize = loader.LoadLevel(_lua, _registry, _assetManager, _renderer, _windowWidth, _windowHeight, 1);
@@ -169,6 +173,9 @@ void Game::Update() {
     _prevFrameMilliSecs = SDL_GetTicks();
 
     _eventBus->Reset();
+
+    _registry->GetSystem<ScriptSystem>().Update();
+
     _registry->GetSystem<MovementSystem>().SubscribeToEvents(_eventBus);
     _registry->GetSystem<DamageSystem>().SubscribeToEvents(_eventBus);
     _registry->GetSystem<KeyboardMovementSystem>().SubscribeToEvents(_eventBus);

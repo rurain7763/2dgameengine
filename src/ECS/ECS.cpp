@@ -186,3 +186,16 @@ void Registry::Update() {
     }
     _entitiesToBeKilled.clear();
 }
+
+void Registry::Clear() {
+    _entityComponentSigs.clear();
+    _freeEntityIDs.clear();
+    _entitiesToAdded.clear();
+    _entitiesToBeKilled.clear();
+    _entityPerTag.clear();
+    _tagPerEntities.clear();
+    _entitiesPerGroup.clear();
+    _groupPerEntity.clear();
+    _systems.clear();
+    _componentPools.clear();
+}

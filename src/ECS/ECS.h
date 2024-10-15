@@ -251,6 +251,8 @@ public:
 
     void Update();
 
+    void Clear();
+
 private:
     int _numEntities = 0;
     std::deque<int> _freeEntityIDs;

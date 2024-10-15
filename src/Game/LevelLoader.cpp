@@ -14,6 +14,7 @@
 #include "../Systems/RenderTextSystem.h"
 #include "../Systems/HealthUISystem.h"
 #include "../Systems/RenderGUISystem.h"
+#include "../Systems/ScriptSystem.h"
 
 #include <fstream>
 #include <SDL2/SDL.h>
@@ -186,6 +187,12 @@ glm::vec2 LevelLoader::LoadLevel(
             newEntity.AddComponent<HealthUIComponent>(
                 glm::vec2(healthUI["offset"]["x"].get_or(0), healthUI["offset"]["y"].get_or(0))
             );
+        }
+
+        sol::optional<sol::table> scriptOpt = components["on_update_script"];
+        if(scriptOpt != sol::nullopt) {
+            sol::function func = scriptOpt.value()[0];
+            newEntity.AddComponent<ScriptComponent>(func);
         }
         i++;
     }
