@@ -131,7 +131,7 @@ void Game::Setup() {
     _registry->GetSystem<ScriptSystem>().CreateLuaBindings(_lua);
 
     LevelLoader loader;
-    glm::vec2 mapSize = loader.LoadLevel(_lua, _registry, _assetManager, _renderer, _windowWidth, _windowHeight, 1);
+    glm::vec2 mapSize = loader.LoadLevel(_lua, _registry, _assetManager, _renderer, _windowWidth, _windowHeight, 2);
     _mapSize = mapSize;
 }
 
