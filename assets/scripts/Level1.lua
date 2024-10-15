@@ -87,7 +87,11 @@ Level = {
         { type = "texture", id = "bullet-texture",              file = "./assets/images/bullet.png" },
         { type = "texture", id = "radar-texture",               file = "./assets/images/radar-spritesheet.png" },
         { type = "font"   , id = "pico8-font-5",                file = "./assets/fonts/pico8.ttf", font_size = 5 },
-        { type = "font"   , id = "pico8-font-10",               file = "./assets/fonts/pico8.ttf", font_size = 10 }
+        { type = "font"   , id = "pico8-font-10",               file = "./assets/fonts/pico8.ttf", font_size = 10 },
+        { type = "audio"  , id = "chopper-audio",               file = "./assets/sounds/helicopter.wav" },
+        { type = "audio"  , id = "shoot-audio",                 file = "./assets/sounds/shoot.wav" },
+        { type = "audio"  , id = "bg-audio",                    file = "./assets/sounds/background.wav" },
+        { type = "audio"  , id = "explosion-audio",             file = "./assets/sounds/explosion.wav" }
     },
 
     ----------------------------------------------------
@@ -107,6 +111,17 @@ Level = {
     ----------------------------------------------------
     entities = {
         [0] =
+        {
+            -- Bg sound player
+            group = "sounds",
+            components = {
+                audio = {
+                    asset_id = "bg-audio",
+                    is_oneshot = false,
+                    volume = 0.1
+                }
+            }
+        },
         {
             -- Player
             tag = "player",
@@ -158,6 +173,11 @@ Level = {
                 },
                 camera_follow = {
                     follow = true
+                },
+                audio = {
+                    asset_id = "chopper-audio",
+                    is_oneshot = false,
+                    volume = 0.5
                 }
             }
         },
@@ -2796,7 +2816,7 @@ Level = {
                 on_update_script = {
                     [0] =
                     function(entity, delta_time, ellapsed_time)
-                        log_info("Executing the SU-27 fighter jet Lua script!")
+                        -- log_info("Executing the SU-27 fighter jet Lua script!")
                         -- this function makes the fighter jet move up and down the map shooting projectiles
                         local current_position_x, current_position_y = get_position(entity)
                         local current_velocity_x, current_velocity_y = get_velocity(entity)

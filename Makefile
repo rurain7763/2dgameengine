@@ -9,7 +9,7 @@ SRC_FILES = ./src/*.cpp \
 			./src/AssetManager/*.cpp \
 			./libs/imgui/*.cpp
 LIB_PATH = -L/opt/homebrew/lib
-LIBS = -lSDL2 -lSDL2_image -lSDL2_ttf -lglm -llua5.4
+LIBS = -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer -lglm -llua5.4
 PROJECT = engine
 
 build:

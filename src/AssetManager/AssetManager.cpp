@@ -46,6 +46,17 @@ TTF_Font* AssetManager::GetFont(const std::string& assetID) const {
     else return pair->second;
 }
 
+void AssetManager::AddAudio(const std::string& assetID, const std::string& filePath) {
+    Mix_Chunk* audio = Mix_LoadWAV(filePath.c_str());
+    _audio.emplace(assetID, audio);
+}
+ 
+Mix_Chunk* AssetManager::GetAudio(const std::string& assetID) const {
+    auto pair = _audio.find(assetID);
+    if(pair == _audio.end()) return nullptr;
+    else return pair->second;
+}
+
 void AssetManager::ClearAssets() {
     for(auto pair : _textures) {
         SDL_DestroyTexture(pair.second);
@@ -56,4 +67,9 @@ void AssetManager::ClearAssets() {
         TTF_CloseFont(pair.second);
     }
     _fonts.clear();
+
+    for(auto pair : _audio) {
+        Mix_FreeChunk(pair.second);
+    }
+    _audio.clear();
 }

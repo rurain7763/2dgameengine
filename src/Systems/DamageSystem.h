@@ -2,12 +2,16 @@
 #define DAMAGESYSTEM_H
 
 #include "../ECS/ECS.h"
+#include "../Logger/Logger.h"
+#include "../EventBus/EventBus.h"
+#include "../Events/CollisionEvent.h"
+
 #include "../Components/BoxColliderComponent.h"
 #include "../Components/HealthComponent.h"
 #include "../Components/ProjectileComponent.h"
-#include "../EventBus/EventBus.h"
-#include "../Events/CollisionEvent.h"
-#include "../Logger/Logger.h"
+#include "../Components/TransformComponent.h"
+#include "../Components/AudioComponent.h"
+#include "../Components/AutoKillComponent.h"
 
 class DamageSystem : public System {
 public:
@@ -41,6 +45,11 @@ public:
             health.curHealthPercentage -= projectileComponent.percentDamage;
             if(health.curHealthPercentage <= 0) {
                 player.Kill();
+
+                Entity explosion = player.CreateEntity();
+                explosion.AddComponent<TransformComponent>(player.GetComponent<TransformComponent>().position, glm::vec2(1, 1), 0);
+                explosion.AddComponent<AudioComponent>("explosion-audio", true, 128);
+                explosion.AddComponent<AutoKillComponent>(1000);
             }
             projectile.Kill();
         }
@@ -53,6 +62,11 @@ public:
             health.curHealthPercentage -= projectileComponent.percentDamage;
             if(health.curHealthPercentage <= 0) {
                 enemy.Kill();
+
+                Entity explosion = enemy.CreateEntity();
+                explosion.AddComponent<TransformComponent>(enemy.GetComponent<TransformComponent>().position, glm::vec2(1, 1), 0);
+                explosion.AddComponent<AudioComponent>("explosion-audio", true, 128);
+                explosion.AddComponent<AutoKillComponent>(1000);
             }
             projectile.Kill();
         }

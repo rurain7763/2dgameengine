@@ -10,6 +10,7 @@
 #include "../Components/ProjectileComponent.h"
 #include "../Components/CameraFollowComponent.h"
 #include "../Events/KeyPressedEvent.h"
+#include "../Components/AudioComponent.h"
 
 #include <SDL2/SDL.h>
 
@@ -39,14 +40,15 @@ public:
                         initPos.x += (sprite.width * transform.scale.x) / 2;
                         initPos.y += (sprite.height * transform.scale.y) / 2;
                     }
-                    
+
                     Entity projectile = entity.CreateEntity();
                     projectile.Group("projectiles");
                     projectile.AddComponent<TransformComponent>(initPos, glm::vec2(1, 1), 0);
                     projectile.AddComponent<RigidBodyComponent>(projectileEmit.projectileVelocity * transform.forward);
                     projectile.AddComponent<BoxColliderComponent>(4, 4);
-                    projectile.AddComponent<SpriteComponent>("bullet_image", 4, 4, 4);
+                    projectile.AddComponent<SpriteComponent>("bullet-texture", 4, 4, 4);
                     projectile.AddComponent<ProjectileComponent>(projectileEmit.isFriendly, projectileEmit.percentDamage, projectileEmit.projectileDuration);
+                    projectile.AddComponent<AudioComponent>("shoot-audio", true);
 
                     projectileEmit.lastEmissionTime = SDL_GetTicks();
                 }

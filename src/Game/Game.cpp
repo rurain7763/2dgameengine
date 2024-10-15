@@ -20,6 +20,8 @@
 #include "../Systems/HealthUISystem.h"
 #include "../Systems/RenderGUISystem.h"
 #include "../Systems/ScriptSystem.h"
+#include "../Systems/AudioSystem.h"
+#include "../Systems/AutoKillSystem.h"
 
 Game::Game() 
     : _prevFrameMilliSecs(0)
@@ -36,12 +38,23 @@ Game::~Game() {
 void Game::Init() {
     // sdl 초기화
     if(SDL_Init(SDL_INIT_EVERYTHING) != 0) {
-        Logger::Err("error init SDL");
+        LOG_ERR("error init SDL");
         return;
     }
 
     if(TTF_Init() != 0) {
-        Logger::Err("error init TTF");
+        LOG_ERR("error init TTF");
+        return;
+    }
+
+    if(SDL_Init(SDL_INIT_AUDIO) != 0) {
+        LOG_ERR("error init SDL audio");
+        return;
+    }
+
+    // 기본 오디오 플레이어 오픈
+    if(Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
+        LOG_ERR("error init Mix_OpenAudio");
         return;
     }
 
@@ -105,9 +118,10 @@ void Game::Destroy() {
     ImGuiSDL::Deinitialize();
     ImGui::DestroyContext();
 
+    Mix_CloseAudio();
+    TTF_Quit();
     SDL_DestroyRenderer(_renderer);
     SDL_DestroyWindow(_window);
-    TTF_Quit();
     SDL_Quit();
 }
 
@@ -126,12 +140,14 @@ void Game::Setup() {
     _registry->AddSystem<HealthUISystem>();
     _registry->AddSystem<RenderGUISystem>();
     _registry->AddSystem<ScriptSystem>();
+    _registry->AddSystem<AudioSystem>();
+    _registry->AddSystem<AutoKillSystem>();
 
     _lua.open_libraries(sol::lib::base, sol::lib::math, sol::lib::os);
     _registry->GetSystem<ScriptSystem>().CreateLuaBindings(_lua);
 
     LevelLoader loader;
-    glm::vec2 mapSize = loader.LoadLevel(_lua, _registry, _assetManager, _renderer, _windowWidth, _windowHeight, 2);
+    glm::vec2 mapSize = loader.LoadLevel(_lua, _registry, _assetManager, _renderer, _windowWidth, _windowHeight, 1);
     _mapSize = mapSize;
 }
 
@@ -185,10 +201,12 @@ void Game::Update() {
     _registry->GetSystem<ProjectileLifeCycleSystem>().Update();
     _registry->GetSystem<ProjectileEmitSystem>().Update(_registry);
     _registry->GetSystem<HealthUISystem>().Update(_registry, _renderer);
-
     _registry->GetSystem<ScriptSystem>().Update(deltaTime);
+    _registry->GetSystem<AutoKillSystem>().Update();
 
     _registry->GetSystem<CameraMovementSystem>().Update(_camera, _mapSize);
+
+    _registry->GetSystem<AudioSystem>().Update(_assetManager);
 
     // 레지스트리 업데이트(실제로 entity 생성 및 삭제가 일어남)
     _registry->Update();

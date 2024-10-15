@@ -15,6 +15,7 @@
 #include "../Systems/HealthUISystem.h"
 #include "../Systems/RenderGUISystem.h"
 #include "../Systems/ScriptSystem.h"
+#include "../Systems/AudioSystem.h"
 
 #include <fstream>
 #include <SDL2/SDL.h>
@@ -59,6 +60,8 @@ glm::vec2 LevelLoader::LoadLevel(
             assetManager->AddTexture(renderer, asset["id"], asset["file"]);
         } else if(type == "font") {
             assetManager->AddFont(asset["id"], asset["file"], asset["font_size"]);
+        } else if(type == "audio") {
+            assetManager->AddAudio(asset["id"], asset["file"]);
         }
         i++;
     }
@@ -186,6 +189,16 @@ glm::vec2 LevelLoader::LoadLevel(
             sol::table healthUI = healthUIOpt.value();
             newEntity.AddComponent<HealthUIComponent>(
                 glm::vec2(healthUI["offset"]["x"].get_or(0), healthUI["offset"]["y"].get_or(0))
+            );
+        }
+
+        sol::optional<sol::table> audioOpt = components["audio"];
+        if(audioOpt != sol::nullopt) {
+            sol::table audio = audioOpt.value();
+            newEntity.AddComponent<AudioComponent>(
+                audio["asset_id"],
+                audio["is_oneshot"].get_or(true),
+                static_cast<int>(audio["volume"].get_or(1.0) * MIX_MAX_VOLUME)
             );
         }
 
