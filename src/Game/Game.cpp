@@ -128,7 +128,7 @@ void Game::Setup() {
     _registry->AddSystem<ScriptSystem>();
 
     _lua.open_libraries(sol::lib::base, sol::lib::math, sol::lib::os);
-    _lua["log_info"] = Logger::Log;
+    _registry->GetSystem<ScriptSystem>().CreateLuaBindings(_lua);
 
     LevelLoader loader;
     glm::vec2 mapSize = loader.LoadLevel(_lua, _registry, _assetManager, _renderer, _windowWidth, _windowHeight, 1);
@@ -174,8 +174,6 @@ void Game::Update() {
 
     _eventBus->Reset();
 
-    _registry->GetSystem<ScriptSystem>().Update();
-
     _registry->GetSystem<MovementSystem>().SubscribeToEvents(_eventBus);
     _registry->GetSystem<DamageSystem>().SubscribeToEvents(_eventBus);
     _registry->GetSystem<KeyboardMovementSystem>().SubscribeToEvents(_eventBus);
@@ -187,6 +185,8 @@ void Game::Update() {
     _registry->GetSystem<ProjectileLifeCycleSystem>().Update();
     _registry->GetSystem<ProjectileEmitSystem>().Update(_registry);
     _registry->GetSystem<HealthUISystem>().Update(_registry, _renderer);
+
+    _registry->GetSystem<ScriptSystem>().Update(deltaTime);
 
     _registry->GetSystem<CameraMovementSystem>().Update(_camera, _mapSize);
 

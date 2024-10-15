@@ -90,7 +90,7 @@ glm::vec2 LevelLoader::LoadLevel(
             newEntity.AddComponent<TransformComponent>(
                 glm::vec2(transform["position"]["x"].get_or(0), transform["position"]["y"].get_or(0)),
                 glm::vec2(transform["scale"]["x"].get_or(1), transform["scale"]["y"].get_or(1)),
-                DEG2RAD(transform["rotation"].get_or(0))
+                transform["rotation"].get_or(0)
             );
         }
 
